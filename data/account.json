@@ -1,0 +1,17 @@
+{
+    "accounts": [
+      {
+        "account-id": "user1",
+        "password": "password123",
+        "affiliation": "Research Department",
+        "position": "Supervisor"
+      },
+      {
+        "account-id": "user2",
+        "password": "password456",
+        "affiliation": "IT Department",
+        "position": "Farmer"
+      }
+    ]
+  }
+  

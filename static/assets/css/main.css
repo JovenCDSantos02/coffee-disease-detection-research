@@ -1,0 +1,17 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+div.main {
+    display: flex;
+    padding: 1rem 0 0 0;
+    background-color: #FFFDD0;
+    color: #3B2F2F;
+    min-height: 89.5vh;
+}
+
+div.content-title * {
+    display: block;
+}

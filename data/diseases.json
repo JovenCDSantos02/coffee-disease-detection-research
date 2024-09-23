@@ -1,0 +1,44 @@
+[
+    {
+        "name": "Anthracnose",
+        "description": "\n- This causes the fruit to blacken, shrink, and rot, and may lead to the death of leaves and branches.",
+        "cure": "\n- Apply fertilizer properly.\n- Prune branches.\n- Avoid overly shaded planting areas.\n- Spray before the rainy season with a 0.5% solution of Bordeaux or 0.03% fungicide with an active ingredient of carbendazim with 120g/200 liters of water.",
+        "image": "static/assets/images/anthracnose.jpg"
+    },
+    {
+        "name": "Brown Eye",
+        "description": "\n- This disease causes brown circular spots on the leaves, often with a yellow halo around the spots.\n- The spots can merge, leading to large dead areas on the leaves, which can eventually cause leaf drop and reduce the overall health of the coffee plant.",
+        "cure": "\n- Remove and destroy affected leaves to prevent the spread of the disease.\n- Ensure proper spacing of plants to allow good air circulation.\n- Spray the plants with a fungicide, particularly those containing copper or mancozeb.",
+        "image": "static/assets/images/brown_eye.jpg"
+    },
+    {
+        "name": "Healthy",
+        "description": "\n- A healthy coffee plant has vibrant green leaves, strong branches, and a robust structure.\n- There are no visible signs of pests, diseases, or nutrient deficiencies.\n- The plant should have a consistent growth pattern and produce high-quality coffee beans without any deformities or discoloration.",
+        "cure": "\n- Maintain regular monitoring, proper irrigation, and balanced fertilization.\n- Ensure the plant is grown in an optimal environment with good sunlight, soil, and pest control.",
+        "image": "static/assets/images/healthy.jpg"
+    },
+    {
+        "name": "Leaf Rust",
+        "description": "\n- This causes leaves to dry out and fall, and in severe cases, the entire tree may die.\n- The usual sign of this disease is the appearance of rust-colored spots on the underside of the leaves, which eventually dry out and start at the edges of the leaf.\n- It is caused by a fungus that can spread through air and rainwater.",
+        "cure": "\n- Collect the affected leaves.\n- Prepare a copper-based fungicide.",
+        "image": "static/assets/images/leaf_rust.jpg"
+    },
+    {
+        "name": "Leaf Scale",
+        "description": "\n- These insects suck the sap from leaves, branches, and fruits and excrete honeydew, which can cause damage to the plant.\n- The eggs can be found under the female.\n- The young insects, also known as crawlers, start sucking the sap from the plant.\n- They reproduce quickly, especially during the summer.",
+        "cure": "\n- Apply organic or inorganic fertilizer to the damaged plants.\n- Prune/remove leaves infested by the pests and burn them.\n- Instead of chemical pesticides, you can use water and soap or botanical pesticides like neem, tuba-tuba, tubli, makabuhay, chili, etc.",
+        "image": "static/assets/images/leaf_scale.jpg"
+    },
+    {
+        "name": "Mealy Bug",
+        "description": "\n- These insects suck the sap from branches, stems, leaves, fruits, and roots.\n- They excrete honeydew on the leaves, which turns into mold.",
+        "cure": "\n- Apply organic or inorganic fertilizer to heavily damaged plants.\n- Remove leaves with many mealy bugs and burn them.\n- Instead of chemical pesticides, use water and soap, neem, tuba-tuba, tubli, makabuhay, chili, etc.",
+        "image": "static/assets/images/mealy_bug.jpg"
+    },
+    {
+        "name": "Twig Borer",
+        "description": "\n- These insects create holes in affected branches.\n- They belong to the beetle family and are 1.4-1.8mm in size.\n- They usually attack and multiply in shaded and lush planting areas.",
+        "cure": "\n- Prune the affected branch 40cm below the lowest visible worm hole, then bury or burn the removed branch.\n- The hole can also be covered with mud or wood to prevent the worm from coming out, causing it to die.\n- Spray neem oil instead of chemical pesticides.",
+        "image": "static/assets/images/twig_borer.jpg"
+    }
+]

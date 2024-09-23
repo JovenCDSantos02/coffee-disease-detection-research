@@ -1,0 +1,20 @@
+[
+    {
+        "date": "2024-09-01",
+        "account-id": "user123",
+        "results": "Leaf Rust",
+        "affiliation": "City A"
+    },
+    {
+        "date": "2024-09-10",
+        "account-id": "user456",
+        "results": "Mealy Bug",
+        "affiliation": "City B"
+    },
+    {
+        "date": "2024-09-05",
+        "account-id": "user789",
+        "results": "Anthracnose",
+        "affiliation": "City A"
+    }
+]

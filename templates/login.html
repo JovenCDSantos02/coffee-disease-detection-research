@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="manifest" href="{{ url_for('serve_static', path='manifest.json') }}">
+</head>
+<body>
+    <h2>Login</h2>
+    <form method="POST">
+        <label for="account-id">Account ID:</label>
+        <input type="text" id="account-id" name="account-id" required><br><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+
+        <button type="submit">Login</button>
+    </form>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+          {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #4CAF50; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+      <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download" style="width: 30px; height: 30px;" onclick="downloadApp()">
+    </div>
+<script src="{{ url_for('serve_static', path='assets/js/app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Leaf Diagnosis</title>
+    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/tools.css') }}">
+    <link rel="manifest" href="{{ url_for('serve_static', path='manifest.json') }}">
+</head>
+<body>
+    <div class="body">
+        <div class="header">
+            <span class="title">
+                <span>Coffee Leaf Diagnosis</span>
+                <img src="{{ url_for('serve_static', path='assets/images/logo.png') }}" alt="logo?">
+            </span>
+            <span class="nav">
+                <a href="/">Home</a>
+                <a href="#">Tools</a>
+                <a href="/resource.html">Resources</a>
+                <form action="{{ url_for('search') }}" method="GET">
+                    <input type="text" placeholder="Search" name="query">
+                    <button type="submit">Search</button>
+                </form>                
+            </span>
+        </div>
+
+        <div class="main">
+            <div class="content-title">
+                <h1>Coffee Leaf Diagnosis</h1>
+                <h3>A Coffee Plant Diagnostic Tool</h3>
+            </div>
+
+            <br>
+
+            <div class="form" id="upload-form">
+                <label class="info">Upload an image and diagnose</label><br>
+                <div id="drop-zone">Drop your image here or click to upload</div>
+                <input type="file" id="plant-image" name="file" accept="image/*" capture="camera" style="display: none;"><br><br>
+                <img id="preview" src="" alt="Image Preview" style="display: none;"><br>
+                <div id="loading-spinner" style="display: none;">Loading...</div>
+                <button type="submit" id="submit-button" onclick="uploadImage()">Diagnose</button>
+            </div>
+
+            <div class="result" id="result" style="display: none;">
+                <h2>Diagnosis Result:</h2>
+                <div class="disease-info">
+                    <img id="disease-image" src="#" alt="Disease Image" style="max-width: 300px; border-radius: 10px; border: 1px solid #ccc;">
+                    <div>
+                        <p id="disease-name"></p>
+                        <p id="disease-description"></p>
+                        <p id="disease-cure"></p>
+                    </div>
+                </div>
+                <div id="result-buttons">
+                    <button id="retry-button" onclick="retry()">Retry</button>
+                    <button id="more-info-button" style="display: none;" onclick="moreInfo()">More Info</button>
+                </div>
+            </div>
+
+            <!-- Only display this button if the user is a Supervisor -->
+            {% if position == 'Supervisor' %}
+            <div class="redirect-button">
+                <button onclick="window.location.href='/recordedResults.html'">View Recorded Results</button>
+            </div>
+            {% endif %}
+        </div>
+        <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #4CAF50; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+            <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download" style="width: 30px; height: 30px;" onclick="downloadApp()">
+        </div>
+    </div>
+    <script src="{{ url_for('serve_static', path='assets/js/app.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('plant-image');
+        const preview = document.getElementById('preview');
+
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                previewImage(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            const file = fileInput.files[0];
+            if (file) {
+                const usePhoto = confirm("Do you want to use this photo?");
+                if (usePhoto) {
+                    previewImage(file);
+                } else {
+                    fileInput.value = ''; // Reset input if not using the photo
+                }
+            }
+        });
+
+        function previewImage(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                dropZone.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function uploadImage() {
+            const formData = new FormData();
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please select a file!");
+                return;
+            }
+
+            formData.append('file', file);
+            document.getElementById('loading-spinner').style.display = 'block';
+            document.getElementById('submit-button').disabled = true;
+
+            $.ajax({
+                url: '/predict',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    document.getElementById('loading-spinner').style.display = 'none';
+                    document.getElementById('submit-button').disabled = false;
+
+                    if (response.error) {
+                        alert(response.error);
+                    } else {
+                        $('#upload-form').hide();  
+                        $('#result').show();  
+
+                        // Convert \n to <br> in description and cure
+                        const formatText = (text) => text.replace(/\n/g, '<br>');
+
+                        $('#disease-name').text('Disease: ' + response.disease_name);
+                        $('#disease-description').html('Description: ' + formatText(response.disease_description));
+                        $('#disease-cure').html('Cure: ' + formatText(response.disease_cure));
+                        $('#disease-image').attr('src', response.disease_image);
+
+                        // Show or hide the More Info button
+                        if (response.disease_name !== 'Healthy') {
+                            $('#more-info-button').show();
+                            $('#more-info-button').attr('onclick', `window.location.href='/detail/${encodeURIComponent(response.disease_name)}'`);
+                        } else {
+                            $('#more-info-button').hide();
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    document.getElementById('loading-spinner').style.display = 'none';
+                    document.getElementById('submit-button').disabled = false;
+                    alert('An error occurred: ' + error);
+                }
+            });
+        }
+
+        function retry() {
+            $('#result').hide();
+            $('#upload-form').show();
+            $('#preview').attr('src', '').hide();
+            $('#drop-zone').show();
+        }
+
+        function moreInfo() {
+            const diseaseName = $('#disease-name').text().replace('Disease: ', '');
+            window.location.href = `/detail/${encodeURIComponent(diseaseName)}`;
+        }
+    </script>
+</body>
+</html>

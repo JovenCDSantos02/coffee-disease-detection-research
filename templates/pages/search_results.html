@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results for "{{ query }}"</title>
+    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/resource.css') }}">
+    <link rel="manifest" href="{{ url_for('serve_static', path='manifest.json') }}">
+</head>
+<body>
+    <div class="body">
+        <div class="header">
+            <span class="title">
+                <span>Coffee Leaf Diagnosis</span>
+                <img src="{{ url_for('serve_static', path='assets/images/logo.png') }}" alt="logo">
+            </span>
+
+            <span class="nav">
+                <a href="/">Home</a>
+                <a href="/tools.html">Tools</a>
+                <a href="/resource.html">Resources</a>
+                <form action="{{ url_for('search') }}" method="GET">
+                    <input type="text" placeholder="Search" name="query">
+                    <button type="submit">Search</button>
+                </form>                
+            </span>
+        </div>
+
+        <div class="main">
+            <div class="content-title">
+                <h1>Search Results for "{{ query }}"</h1>
+            </div>
+            <hr>
+            <div class="content">
+                {% if not diseases and not pests %}
+                    <p>There are no coffee plant diseases/pests related to "{{ query }}".</p>
+                {% else %}
+                    {% if diseases %}
+                    <div class="diseases">
+                        <div class="subTitle">Diseases</div>
+                        <div class="item-container">
+                            {% for item in diseases %}
+                                <a href="{{ url_for('detail', name=item.name) }}" class="item-button">
+                                    <img src="{{ url_for('serve_static', path=item.image) }}" alt="{{ item.name }}">
+                                    <span>{{ item.name }}</span>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <hr>
+                    {% endif %}
+                    {% if pests %}
+                    <div class="pests">
+                        <div class="subTitle">Pests</div>
+                        <div class="item-container">
+                            {% for item in pests %}
+                                <a href="{{ url_for('detail', name=item.name) }}" class="item-button">
+                                    <img src="{{ url_for('serve_static', path=item.image) }}" alt="{{ item.name }}">
+                                    <span>{{ item.name }}</span>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <hr>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #4CAF50; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+            <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download" style="width: 30px; height: 30px;" onclick="downloadApp()">
+        </div>
+    </div>
+    <script src="{{ url_for('serve_static', path='assets/js/app.js') }}"></script>
+</body>
+</html>

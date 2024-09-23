@@ -1,0 +1,154 @@
+/* Typography and Body Enhancements */
+body {
+    font-size: 16px;
+    line-height: 1.5;
+    color: #3B2F2F;
+    margin: 0;
+    padding: 0;
+    background-color: #FFFDD0; /* Match background color */
+}
+
+/* Header Styling */
+.header {
+    background-color: #6F4E37;
+    color: #FFFDD0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 5px solid #3B2F2F;
+}
+
+span.title {
+    display: flex;
+    align-items: center;
+    width: 37.5vw;
+    padding-left: 3rem;
+}
+
+span.title > img {
+    margin-left: 0.5rem;
+    height: 8vh;
+    width: auto;
+    margin: -0.5rem 0 0 0.5rem;
+    vertical-align: middle;
+}
+
+span.nav {
+    display: flex;
+    align-items: center;
+    text-align: right;
+    width: 60vw;
+}
+
+/* Link Styling */
+a:link, a:visited, a:active {
+    text-decoration: none;
+    color: inherit;
+    padding: 0 1rem;
+    font-size: 1.5rem;
+    margin-right: 2rem;
+    display: inline-block;
+    height: inherit;
+}
+
+a:hover {
+    color: #3B2F2F;
+    background-color: #FFFDD0;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Added hover box-shadow */
+}
+
+/* Main Content Styling */
+.main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+    background-color: #FFFDD0;
+    min-height: 89.5vh;
+}
+
+.content-title {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.content-title h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.content {
+    max-width: 800px;
+    width: 100%;
+    background-color: #FFFDD0;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.content img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 1rem;
+}
+
+.content p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* Enhancing Buttons */
+form > button {
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    background-color: #6F4E37;
+    color: #FFFDD0;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+form > button:hover {
+    background-color: #FFFDD0;
+    color: #3B2F2F;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    span.nav {
+        margin-top: 1rem;
+        width: 100%;
+        text-align: center;
+    }
+}
+
+.detail-img {
+    width: 40%;
+}
+
+/* Form inside the nav */
+span.nav > form {
+    display: inline;
+}
+
+form * {
+    display: inline;
+    margin: 0 -1rem 0 0;
+    height: 2rem;
+    vertical-align: middle;
+    padding: 0 1rem;
+    border: none;
+}
+
+form > input:focus {
+    border: none;
+    box-shadow: none;
+    outline: none;
+}
