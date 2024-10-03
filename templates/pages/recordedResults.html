@@ -12,11 +12,12 @@
 
     <label for="month-year">Select Month and Year:</label>
     <select id="month-year" onchange="updateGraph()">
-        <!-- Populate options dynamically -->
+        
     </select>
 
     <label for="affiliation">Select Affiliation:</label>
     <select id="affiliation" onchange="updateGraph()">
+
         <option value="City A">City A</option>
         <option value="City B">City B</option>
         <option value="City C">City C</option>
@@ -24,11 +25,14 @@
 
     <canvas id="resultsChart"></canvas>
 
+    <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #FFD700; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);">
+        <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download" style="width: 40px; height: 40px;" onclick="downloadApp()">
+    </div>
+
     <script>
         let allRecords = [];
         const chart = createChart();
 
-        // Function to initialize Chart.js
         function createChart() {
             const ctx = document.getElementById('resultsChart').getContext('2d');
             return new Chart(ctx, {
@@ -53,15 +57,13 @@
             });
         }
 
-        // Fetch data from Flask and initialize dropdowns and chart
         async function fetchRecords() {
             const response = await fetch('/get-records');
             allRecords = await response.json();
             populateMonthYearDropdown();
-            updateGraph(); // Initial graph update
+            updateGraph();
         }
 
-        // Populate the month-year dropdown based on available records
         function populateMonthYearDropdown() {
             const monthYearSelect = document.getElementById('month-year');
             const uniqueMonthYears = [...new Set(allRecords.map(record => {
@@ -76,42 +78,35 @@
                 monthYearSelect.appendChild(option);
             });
 
-            // Set current month-year as default
             const currentMonthYear = getCurrentMonthYear();
             monthYearSelect.value = currentMonthYear;
         }
 
-        // Get current month and year in "Month Year" format
         function getCurrentMonthYear() {
             const now = new Date();
-            const month = now.getMonth() + 1; // JavaScript months are 0-indexed
+            const month = now.getMonth() + 1; 
             const year = now.getFullYear();
             return `${getMonthName(month.toString().padStart(2, '0'))} ${year}`;
         }
 
-        // Helper to convert numeric month to string (e.g., "09" -> "September")
         function getMonthName(month) {
             const monthNames = ["January", "February", "March", "April", "May", "June",
                                 "July", "August", "September", "October", "November", "December"];
             return monthNames[parseInt(month) - 1];
         }
 
-        // Filter records and update the graph
         function updateGraph() {
             const selectedMonthYear = document.getElementById("month-year").value;
             const selectedAffiliation = document.getElementById("affiliation").value;
 
-            // Convert selectedMonthYear to "YYYY-MM"
             const [monthName, year] = selectedMonthYear.split(" ");
             const month = ("0" + (new Date(monthName + " 1, 2000").getMonth() + 1)).slice(-2);
             const filterDate = `${year}-${month}`;
 
-            // Filter the records based on selected month-year and affiliation
             const filteredRecords = allRecords.filter(record => {
                 return record.date.startsWith(filterDate) && record.affiliation === selectedAffiliation;
             });
 
-            // Tally the results
             const resultsTally = {
                 "Leaf Scale": 0,
                 "Mealy Bug": 0,
@@ -125,12 +120,10 @@
                 resultsTally[record.results] = (resultsTally[record.results] || 0) + 1;
             });
 
-            // Update the chart with new data
             chart.data.datasets[0].data = Object.values(resultsTally);
             chart.update();
         }
 
-        // Fetch records on page load
         window.onload = fetchRecords;
     </script>
     <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #4CAF50; display: flex; align-items: center; justify-content: center; cursor: pointer;">

@@ -2,15 +2,15 @@
     "accounts": [
       {
         "account-id": "user1",
-        "password": "password123",
-        "affiliation": "Research Department",
-        "position": "Supervisor"
+        "password": "1",
+        "affiliation": "San Mateo",
+        "position": "Farmer"
       },
       {
         "account-id": "user2",
         "password": "password456",
-        "affiliation": "IT Department",
-        "position": "Farmer"
+        "affiliation": "San Juan",
+        "position": "Supervisor"
       }
     ]
   }

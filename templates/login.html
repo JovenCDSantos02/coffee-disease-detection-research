@@ -5,31 +5,187 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="manifest" href="{{ url_for('serve_static', path='manifest.json') }}">
+    <style>
+      * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+      }
+
+      body {
+          padding: 2rem;
+          min-height: 100vh;
+          background-image: linear-gradient(135deg, #8B4513, #8FBC8F);
+      }
+
+      div.body {
+          background-color: #2F4F4F;
+          width: 384px;
+          height: 640px;
+          margin: 0 auto;
+          border-radius: 1rem;
+          position: relative;
+      }
+
+      div.top {
+          height: 30%;
+          color: #FFF;
+          font-size: 1.5rem;
+          text-align: center;
+          padding: 1rem 0 0 0;
+      }
+
+      div.bottom {
+          height: 70%;
+          background-color: transparent;
+          padding: 1rem;
+          border-radius: 1rem;
+          position: relative;
+      }
+
+      html {
+        height: 100%;
+      }
+
+      .login-box {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 400px;
+        padding: 40px;
+        transform: translate(-50%, -50%);
+        background: rgba(0,0,0,.5);
+        box-sizing: border-box;
+        box-shadow: 0 15px 25px rgba(0,0,0,.6);
+        border-radius: 10px;
+      }
+
+      .login-box h2 {
+        margin: 0 0 30px;
+        padding: 0;
+        color: #fff;
+        text-align: center;
+      }
+
+      .login-box .user-box {
+        position: relative;
+      }
+
+      .login-box .user-box input {
+        width: 100%;
+        padding: 10px 0;
+        font-size: 16px;
+        color: #fff;
+        margin-bottom: 30px;
+        border: none;
+        border-bottom: 1px solid #fff;
+        outline: none;
+        background: transparent;
+      }
+
+      .login-box .user-box label {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 10px 0;
+        font-size: 16px;
+        color: #fff;
+        pointer-events: none;
+        transition: .5s;
+      }
+
+      .login-box .user-box input:focus ~ label,
+      .login-box .user-box input:valid ~ label {
+        top: -20px;
+        left: 0;
+        color: #03e9f4;
+        font-size: 12px;
+      }
+
+      .login-box form a {
+        position: relative;
+        display: inline-block;
+        padding: 10px 20px;
+        color: #03e9f4;
+        font-size: 16px;
+        text-decoration: none;
+        text-transform: uppercase;
+        overflow: hidden;
+        transition: .5s;
+        margin-top: 40px;
+        letter-spacing: 4px;
+      }
+
+      button[type="submit"] {
+  cursor: pointer;
+  background-color: #2F4F4F;
+  color: #eee;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  width: 100%;
+  border: none;
+  transition: background-color 0.3s;
+}
+
+button[type="submit"]:focus,
+button[type="submit"]:hover {
+  background-color: #8FBC8F;
+}
+
+ul {
+  list-style-type: none; 
+  margin-top: 2rem;
+  text-align: center; 
+}
+
+li {
+  color: white;
+  font-style: italic;
+  font-size: 1rem; 
+}
+
+    </style>
 </head>
 <body>
-    <h2>Login</h2>
-    <form method="POST">
-        <label for="account-id">Account ID:</label>
-        <input type="text" id="account-id" name="account-id" required><br><br>
-
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br><br>
-
-        <button type="submit">Login</button>
-    </form>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul>
-          {% for category, message in messages %}
-            <li class="{{ category }}">{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
-    <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #4CAF50; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-      <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download" style="width: 30px; height: 30px;" onclick="downloadApp()">
+  <div class="body">
+    <div class="top">
+      <img src="{{ url_for('serve_static', path='assets/images/logo.png') }}" style="width: 150px; height: 150px;" alt=""> <br>
+      <h2>Coffee Leaf Diagnosis</h2>
     </div>
+    <div class="bottom">
+      <div class="login-box">
+        <h2>Login</h2>
+        <form method="POST">
+            <div class="user-box">
+              <input type="text" id="account-id" name="account-id" required>
+              <label for="account-id">Account ID</label>
+            </div>
+            <div class="user-box">
+              <input type="password" id="password" name="password" required>
+              <label for="password">Password</label>
+            </div>
+            <button type="submit">LOGIN</button>
+        </form>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul>
+              {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+
+  <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #FFD700; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);">
+    <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download" style="width: 40px; height: 40px;" onclick="downloadApp()">
+  </div>
+  
 <script src="{{ url_for('serve_static', path='assets/js/app.js') }}"></script>
 </body>
 </html>

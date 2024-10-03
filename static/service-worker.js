@@ -9,7 +9,6 @@ self.addEventListener('install', (event) => {
                 '/static/assets/css/main.css',
                 '/static/assets/css/tools.css',
                 '/static/assets/images/logo.png',
-                // Add other assets you want to cache
             ]);
         })
     );

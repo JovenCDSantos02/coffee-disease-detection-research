@@ -4,59 +4,70 @@ from tensorflow.keras.preprocessing.image import img_to_array, load_img
 import numpy as np
 import json
 import os
+from datetime import timedelta
+import datetime
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
-# Secret key for session management and flashing messages
 app.secret_key = 'coffee_diseases_detection'
+app.permanent_session_lifetime = timedelta(minutes=600)
 
-# Load disease information
 with open(os.path.join(app.root_path, 'data/diseases.json')) as f:
     diseases_info = json.load(f)
 
-# Load accounts for login
 def load_accounts():
     with open(os.path.join(app.root_path, 'data/account.json')) as f:
         return json.load(f)['accounts']
 
-# Load the model
 model = load_model('coffee_plant_disease_model.keras')
 
-# Categorize diseases and pests
 diseases = [item for item in diseases_info if item['name'] not in ['Healthy'] and item['name'] in ['Anthracnose', 'Brown Eye', 'Leaf Rust']]
 pests = [item for item in diseases_info if item['name'] not in ['Healthy'] and item['name'] in ['Leaf Scale', 'Mealy Bug', 'Twig Borer']]
 
-# Make login page the root path
 @app.route('/', methods=['GET', 'POST'])
 def login():
+    if 'account_id' in session:
+        return redirect(url_for('tools'))
+    
     if request.method == 'POST':
         account_id = request.form['account-id']
         password = request.form['password']
 
-        # Load account details from JSON
         accounts = load_accounts()
 
-        # Check if account-id and password match
         for account in accounts:
             if account['account-id'] == account_id and account['password'] == password:
-                # Store the account-id and position in the session
                 session['account_id'] = account_id
                 session['position'] = account['position']
+                session['affiliation'] = account.get('affiliation', '')
+                session.permanent = True
                 return redirect(url_for('tools'))
 
-        # If login fails
         flash('Login failed. Please check your account ID and password.', 'error')
 
     return render_template('login.html')
 
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('You have been logged out.', 'info')
+    return redirect(url_for('login'))
+
 @app.route('/tools.html')
 def tools():
-    # Get the position from the session
+    if 'account_id' not in session:
+        flash('You need to log in first.', 'error')
+        return redirect(url_for('login'))
+    
     position = session.get('position', '')
     return render_template('pages/tools.html', position=position)
 
 @app.route('/resource.html')
 def resource():
+    if 'account_id' not in session:
+        flash('You need to log in first.', 'error')
+        return redirect(url_for('login'))
+        
     return render_template('pages/resource.html', diseases=diseases, pests=pests)
 
 @app.route('/search', methods=['GET'])
@@ -81,6 +92,10 @@ def search():
 
 @app.route('/detail/<name>')
 def detail(name):
+    if 'account_id' not in session:
+        flash('You need to log in first.', 'error')
+        return redirect(url_for('login'))
+        
     item = next((item for item in diseases_info if item['name'] == name), None)
     return render_template('pages/detail.html', item=item) if item else "Item not found", 404
 
@@ -90,8 +105,12 @@ def serve_static(path):
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    file = request.files['file']
+    if 'account_id' not in session:
+        flash('You need to log in first.', 'error')
+        return redirect(url_for('login'))
 
+    file = request.files['file']
+    
     file_path = os.path.join('uploads', file.filename)
     file.save(file_path)
 
@@ -114,6 +133,25 @@ def predict():
             'disease_cure': disease_info['cure'],
             'disease_image': disease_info['image']
         }
+
+        record = {
+            "date": str(datetime.date.today()),
+            "account-id": session['account_id'],
+            "results": predicted_disease_name,
+            "affiliation": session.get('affiliation', 'Unknown')
+        }
+
+        result_record_path = os.path.join(app.root_path, 'data/resultRecord.json')
+        if os.path.exists(result_record_path):
+            with open(result_record_path, 'r+') as f:
+                records = json.load(f)
+                records.append(record)
+                f.seek(0)
+                json.dump(records, f, indent=4)
+        else:
+            with open(result_record_path, 'w') as f:
+                json.dump([record], f, indent=4)
+
     else:
         response = {
             'error': 'Disease not found in the database.'
@@ -123,16 +161,22 @@ def predict():
 
     return jsonify(response)
 
-# Route to serve resultRecord.json
 @app.route('/get-records', methods=['GET'])
 def get_records():
+    if 'account_id' not in session:
+        flash('You need to log in first.', 'error')
+        return redirect(url_for('login'))
+        
     with open(os.path.join(app.root_path, 'data/resultRecord.json')) as f:
         records = json.load(f)
     return jsonify(records)
 
-# Route for the recorded results page
 @app.route('/recordedResults.html')
 def recorded_results():
+    if 'account_id' not in session:
+        flash('You need to log in first.', 'error')
+        return redirect(url_for('login'))
+        
     return render_template('pages/recordedResults.html')
 
 if __name__ == '__main__':

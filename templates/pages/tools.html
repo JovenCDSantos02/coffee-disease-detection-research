@@ -4,30 +4,198 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coffee Leaf Diagnosis</title>
-    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/header.css') }}">
-    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/main.css') }}">
-    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/tools.css') }}">
     <link rel="manifest" href="{{ url_for('serve_static', path='manifest.json') }}">
+    <style>
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+      }
+
+      body {
+          padding: 2rem;
+          min-height: 100vh;
+          background-image: linear-gradient(135deg, #8B4513, #8FBC8F);
+      }
+
+      button[type="submit"] {
+  cursor: pointer;
+  background-color: #2F4F4F;
+  color: #eee;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  width: 10rem;
+  border: none;
+  transition: background-color 0.3s;
+  margin: 0;
+}
+
+button[type="submit"]:focus,
+button[type="submit"]:hover {
+  background-color: #8FBC8F;
+}
+
+.body {
+    width: 90%;
+    margin: 1rem auto 0;
+    background-color: #FFF;
+    border-radius: 1rem;
+    padding: 1rem;
+    text-align: center;
+}
+
+#preview {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0px;
+    max-width: 100%;
+    max-height: 15rem; 
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
+
+
+#upload-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#drop-zone {
+    background-color: white;
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    font-size: 18px;
+    color: #aaa;
+    transition: border-color 0.3s;
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+#drop-zone.dragover {
+    border-color: #333;
+    color: #333;
+}
+
+#loading-spinner {
+    display: none;
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #2F4F4F;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.result {
+    margin-top: 30px;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #8FBC8F;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.disease-info {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.disease-info img {
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    max-width: 250px;
+    max-height: 250px;
+}
+
+.disease-info div {
+    flex: 1;
+    font-family: 'Arial', sans-serif;
+}
+
+.disease-info p {
+    margin: 10px 0;
+    line-height: 1.6;
+    font-size: 16px;
+    color: #333;
+}
+
+.disease-info p#disease-name {
+    font-weight: bold;
+    font-size: 20px;
+    color: #007BFF;
+    margin-bottom: 15px;
+}
+
+.disease-info p#disease-description, 
+.disease-info p#disease-cure {
+    margin-left: 20px;
+}
+
+.disease-info p#disease-cure ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.disease-info p#disease-cure ul li {
+    margin-bottom: 5px;
+}
+
+.disease-info p#disease-cure ul li::marker {
+    color: #007BFF;
+}
+
+a:link, a:visited, a:hover, a:active {
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+a:hover, form > button:hover, #retry-button:hover, #more-info-button:hover {
+    background-color: #FFFDD0;
+    color: #3B2F2F;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+form > button, #retry-button, #more-info-button {
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    transition: background-color 0.3s ease;
+}
+
+#retry-button, #more-info-button {
+    background-color: #2F4F4F;
+    color: #FFFDD0;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#result-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 20px;
+}
+
+
+    </style>
 </head>
 <body>
     <div class="body">
-        <div class="header">
-            <span class="title">
-                <span>Coffee Leaf Diagnosis</span>
-                <img src="{{ url_for('serve_static', path='assets/images/logo.png') }}" alt="logo?">
-            </span>
-            <span class="nav">
-                <a href="/">Home</a>
-                <a href="#">Tools</a>
-                <a href="/resource.html">Resources</a>
-                <form action="{{ url_for('search') }}" method="GET">
-                    <input type="text" placeholder="Search" name="query">
-                    <button type="submit">Search</button>
-                </form>                
-            </span>
-        </div>
-
-        <div class="main">
             <div class="content-title">
                 <h1>Coffee Leaf Diagnosis</h1>
                 <h3>A Coffee Plant Diagnostic Tool</h3>
@@ -38,9 +206,9 @@
             <div class="form" id="upload-form">
                 <label class="info">Upload an image and diagnose</label><br>
                 <div id="drop-zone">Drop your image here or click to upload</div>
-                <input type="file" id="plant-image" name="file" accept="image/*" capture="camera" style="display: none;"><br><br>
+                <input type="file" id="plant-image" name="file" accept="image/*" capture="camera" style="display: none;">
                 <img id="preview" src="" alt="Image Preview" style="display: none;"><br>
-                <div id="loading-spinner" style="display: none;">Loading...</div>
+                <div id="loading-spinner" style="display: none;"></div>
                 <button type="submit" id="submit-button" onclick="uploadImage()">Diagnose</button>
             </div>
 
@@ -60,15 +228,13 @@
                 </div>
             </div>
 
-            <!-- Only display this button if the user is a Supervisor -->
             {% if position == 'Supervisor' %}
             <div class="redirect-button">
                 <button onclick="window.location.href='/recordedResults.html'">View Recorded Results</button>
             </div>
             {% endif %}
-        </div>
-        <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #4CAF50; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-            <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download" style="width: 30px; height: 30px;" onclick="downloadApp()">
+        <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #FFD700; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);">
+            <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download" style="width: 40px; height: 40px;" onclick="downloadApp()">
         </div>
     </div>
     <script src="{{ url_for('serve_static', path='assets/js/app.js') }}"></script>
@@ -108,7 +274,7 @@
                 if (usePhoto) {
                     previewImage(file);
                 } else {
-                    fileInput.value = ''; // Reset input if not using the photo
+                    fileInput.value = '';
                 }
             }
         });
@@ -152,7 +318,6 @@
                         $('#upload-form').hide();  
                         $('#result').show();  
 
-                        // Convert \n to <br> in description and cure
                         const formatText = (text) => text.replace(/\n/g, '<br>');
 
                         $('#disease-name').text('Disease: ' + response.disease_name);
@@ -160,7 +325,6 @@
                         $('#disease-cure').html('Cure: ' + formatText(response.disease_cure));
                         $('#disease-image').attr('src', response.disease_image);
 
-                        // Show or hide the More Info button
                         if (response.disease_name !== 'Healthy') {
                             $('#more-info-button').show();
                             $('#more-info-button').attr('onclick', `window.location.href='/detail/${encodeURIComponent(response.disease_name)}'`);

@@ -12,23 +12,21 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// Listen for the beforeinstallprompt event
 window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault(); // Prevent the mini-info bar from appearing on mobile
-    deferredPrompt = e; // Stash the event so it can be triggered later
+    e.preventDefault(); 
+    deferredPrompt = e;
 });
 
-// Function to prompt the user to install the app
 function downloadApp() {
     if (deferredPrompt) {
-        deferredPrompt.prompt(); // Show the install prompt
+        deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'accepted') {
                 console.log('User accepted the A2HS prompt');
             } else {
                 console.log('User dismissed the A2HS prompt');
             }
-            deferredPrompt = null; // Clear the prompt once it's been used
+            deferredPrompt = null;
         });
     } else {
         alert('This app cannot be installed. Please try again later.');
