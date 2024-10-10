@@ -4,31 +4,124 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Results for "{{ query }}"</title>
-    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/header.css') }}">
-    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/main.css') }}">
-    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/resource.css') }}">
+    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/nav.css') }}">
     <link rel="manifest" href="{{ url_for('serve_static', path='manifest.json') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            padding: 2rem;
+            min-height: 100vh;
+            background-image: linear-gradient(135deg, #8B4513, #8FBC8F);
+        }
+
+        .body {
+            width: 90%;
+            margin: 1rem auto;
+            background-color: #FFF;
+            border-radius: 1rem;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        div.content-title h1, div.content-title h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        div.content {
+            width: 100%;
+            max-width: 1200px;
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: #8FBC8F;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+        }
+
+        a.item-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background-color: #8FBC8F; /* Default background */
+            padding: 0 0 0.5rem 0;
+            border-radius: 10px;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            width: 150px;
+            box-sizing: border-box;
+            color: #3B2F2F;
+            text-decoration: none; /* Remove underline */
+        }
+
+        a.item-button img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px 10px 0 0 ;
+            border: 1px solid #ddd;
+            margin-bottom: 0.5rem;
+        }
+
+        a.item-button span {
+            margin-top: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: inherit;
+            background-color: inherit;
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+        }
+
+        a.item-button:hover {
+            transform: translateY(-5px);
+            background-color: #2F4F4F; /* Hover background */
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            color: #FFF;
+        }
+
+        div.subTitle {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+            color: #2F4F4F;
+            text-align: center;
+        }
+
+        div.item-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        @media screen and (max-width: 768px) {
+            .title, .nav {
+                display: block;
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="circle-menu" onclick="toggleMenu()">
+        <img src="{{ url_for('serve_static', path='assets/images/menu-icon.png') }}" alt="Menu">
+    </div>
+
+    <div class="nav" id="navMenu">
+        <div class="menu-item"><a href="/tools.html">Tools</a></div>
+        <div class="menu-item"><a href="/resource.html">Resources</a></div>
+        <form action="/search" method="GET">
+            <input type="text" placeholder="Search" name="query">
+            <button type="submit">Search</button>
+        </form>
+        <div class="menu-item"><a href="/logout">Logout</a></div>
+    </div>
     <div class="body">
-        <div class="header">
-            <span class="title">
-                <span>Coffee Leaf Diagnosis</span>
-                <img src="{{ url_for('serve_static', path='assets/images/logo.png') }}" alt="logo">
-            </span>
-
-            <span class="nav">
-                <a href="/">Home</a>
-                <a href="/tools.html">Tools</a>
-                <a href="/resource.html">Resources</a>
-                <form action="{{ url_for('search') }}" method="GET">
-                    <input type="text" placeholder="Search" name="query">
-                    <button type="submit">Search</button>
-                </form>                
-            </span>
-        </div>
-
-        <div class="main">
             <div class="content-title">
                 <h1>Search Results for "{{ query }}"</h1>
             </div>
@@ -66,12 +159,12 @@
                     <hr>
                     {% endif %}
                 {% endif %}
-            </div>
         </div>
         <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #FFD700; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);">
             <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download" style="width: 40px; height: 40px;" onclick="downloadApp()">
         </div>
     </div>
+    <script src="{{ url_for('serve_static', path='assets/js/circle-menu.js') }}"></script> 
     <script src="{{ url_for('serve_static', path='assets/js/app.js') }}"></script>
 </body>
 </html>

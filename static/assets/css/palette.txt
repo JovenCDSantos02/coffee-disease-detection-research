@@ -1,8 +1,0 @@
-Dark Green (#2F4F4F) – Represents plants and nature, making it ideal for backgrounds or headers.
-Light Green (#8FBC8F) – A lighter, fresher green for buttons, highlights, or accent elements, evoking health and growth.
-Warm Brown (#8B4513) – Symbolizes coffee and the earth, perfect for borders, footers, or side panels.
-Soft Beige (#F5F5DC) – A neutral, coffee-like tone that pairs well with other colors for backgrounds or text areas.
-Muted Yellow (#FFD700) – A warm, inviting tone that can highlight important buttons, notifications, or hover effects.
-White (#FFFFFF) – Clean and neutral for text or backgrounds, ensuring readability and contrast.
-
-login, detail, recorded results, resource, search results, tools

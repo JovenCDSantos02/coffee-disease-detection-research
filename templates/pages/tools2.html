@@ -191,23 +191,6 @@ form > button, #retry-button, #more-info-button {
     gap: 1rem;
     margin-top: 20px;
 }
-
-#menu-submit {
-    padding: 0.5rem;
-    background-color: #FFD700; /* Button background color */
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    width: 4rem;
-    text-transform: none;
-    color: black;
-    font-weight: normal;
-}
-
-#menu-submit:hover {
-    background-color: #F5F5DC;
-}
     </style>
     
 </head>
@@ -221,7 +204,7 @@ form > button, #retry-button, #more-info-button {
         <div class="menu-item"><a href="/resource.html">Resources</a></div>
         <form action="/search" method="GET">
             <input type="text" placeholder="Search" name="query">
-            <button id="menu-submit" type="submit">Search</button>
+            <button type="submit">Search</button>
         </form>
         <div class="menu-item"><a href="/logout">Logout</a></div>
     </div>

@@ -4,45 +4,141 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ item.name }} Details</title>
-    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/detail.css') }}">
-    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/header.css') }}">
-    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/main.css') }}">
     <link rel="manifest" href="{{ url_for('serve_static', path='manifest.json') }}">
-    
+    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/nav.css') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            padding: 2rem;
+            min-height: 100vh;
+            background-image: linear-gradient(135deg, #8B4513, #8FBC8F);
+        }
+
+        .body {
+            width: 90%;
+            margin: 1rem auto 0;
+            background-color: #FFF;
+            border-radius: 1rem;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .content-title {
+            background-color: #2F4F4F; /* Dark Green background */
+            padding: 10px;
+            border-radius: 8px;
+            color: white; /* White text color */
+        }
+
+        hr {
+            border: none;
+            height: 2px;
+            background-color: #2F4F4F; /* Dark Green for the hr line */
+            margin: 1rem 0;
+        }
+
+        .disease-info {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            flex-direction: row-reverse; /* This moves the image to the right */
+        }
+
+        .image-container {
+            min-width: 40%; /* Ensure the image container takes at least 40% of the width */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .disease-info img {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            max-width: 100%; /* Ensure the image scales within the container */
+            max-height: 250px;
+        }
+
+        .disease-info div {
+            flex: 1;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .disease-info p {
+            margin: 10px 0;
+            line-height: 1.6;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .disease-info .disease-title {
+            font-weight: bold;
+            font-size: 20px;
+            color: black;
+            margin-bottom: 15px;
+        }
+
+        .disease-info .disease-description,
+        .disease-info .disease-cure {
+            margin-left: 20px;
+            color: #333; /* Ensure it's visible */
+        }
+
+        .disease-info .disease-cure ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+
+        .disease-info .disease-cure ul li {
+            margin-bottom: 5px;
+        }
+
+        .disease-info .disease-cure ul li::marker {
+            color: #007BFF;
+        }
+    </style>
 </head>
 <body>
+    <div class="circle-menu" onclick="toggleMenu()">
+        <img src="{{ url_for('serve_static', path='assets/images/menu-icon.png') }}" alt="Menu">
+    </div>
+
+    <div class="nav" id="navMenu">
+        <div class="menu-item"><a href="/tools.html">Tools</a></div>
+        <div class="menu-item"><a href="/resource.html">Resources</a></div>
+        <form action="/search" method="GET">
+            <input type="text" placeholder="Search" name="query">
+            <button type="submit">Search</button>
+        </form>
+        <div class="menu-item"><a href="/logout">Logout</a></div>
+    </div>
     <div class="body">
-        <div class="header">
-            <span class="title">
-                <span>Coffee Leaf Diagnosis</span>
-                <img src="{{ url_for('serve_static', path='assets/images/logo.png') }}" alt="logo">
-            </span>
-            <span class="nav">
-                <a href="/">Home</a>
-                <a href="/tools.html">Tools</a>
-                <a href="/resource.html">Resources</a>
-                <form action="{{ url_for('search') }}" method="GET">
-                    <input type="text" placeholder="Search" name="query">
-                    <button type="submit">Search</button>
-                </form>                
-            </span>
-        </div>
-        
         <div class="main">
             <div class="content-title">
                 <h1>{{ item.name }}</h1>
             </div>
             <hr>
-            <div class="content">
-                <img src="{{ url_for('serve_static', path=item.image) }}" class="detail-img" alt="{{ item.name }}">
-                <p><strong>Description:</strong> {{ item.description }}</p>
-                <p><strong>Cure:</strong> {{ item.cure }}</p>
+            <div class="disease-info">
+                <div>
+                    <p class="disease-title"><strong>Description:</strong></p>
+                    <p class="disease-description">{{ item.description }}</p>
+                    <p class="disease-title"><strong>Cure:</strong></p>
+                    <p class="disease-cure">{{ item.cure }}</p>
+                </div>
+                <div class="image-container">
+                    <img src="{{ url_for('serve_static', path=item.image) }}" class="detail-img" alt="{{ item.name }}">
+                </div>
             </div>
         </div>
         <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #FFD700; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);">
             <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download" style="width: 40px; height: 40px;" onclick="downloadApp()">
         </div>
     </div>
+    <script src="{{ url_for('serve_static', path='assets/js/circle-menu.js') }}"></script> 
     <script src="{{ url_for('serve_static', path='assets/js/app.js') }}"></script>
 </body>
 </html>

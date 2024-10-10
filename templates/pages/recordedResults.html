@@ -5,57 +5,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recorded Results</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/nav.css') }}">
     <link rel="manifest" href="{{ url_for('serve_static', path='manifest.json') }}">
+    <style>
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+      }
+
+      body {
+          padding: 2rem;
+          min-height: 100vh;
+          background-image: linear-gradient(135deg, #8B4513, #8FBC8F);
+      }
+      .body {
+    width: 90%;
+    margin: 1rem auto 0;
+    background-color: #FFF;
+    border-radius: 1rem;
+    padding: 1rem;
+    text-align: center;
+}
+.graph {
+    width: 80%;
+    margin: 1rem auto 0; 
+    text-align: center; 
+}
+
+</style>
 </head>
+
 <body>
-    <h1>Recorded Results</h1>
-
-    <label for="month-year">Select Month and Year:</label>
-    <select id="month-year" onchange="updateGraph()">
-        
-    </select>
-
-    <label for="affiliation">Select Affiliation:</label>
-    <select id="affiliation" onchange="updateGraph()">
-
-        <option value="City A">City A</option>
-        <option value="City B">City B</option>
-        <option value="City C">City C</option>
-    </select>
-
-    <canvas id="resultsChart"></canvas>
-
-    <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #FFD700; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);">
-        <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download" style="width: 40px; height: 40px;" onclick="downloadApp()">
+    <div class="circle-menu" onclick="toggleMenu()">
+        <img src="{{ url_for('serve_static', path='assets/images/menu-icon.png') }}" alt="Menu">
     </div>
+
+    <div class="nav" id="navMenu">
+        <div class="menu-item"><a href="/tools.html">Tools</a></div>
+        <div class="menu-item"><a href="/resource.html">Resources</a></div>
+        <form action="/search" method="GET">
+            <input type="text" placeholder="Search" name="query">
+            <button type="submit">Search</button>
+        </form>
+        <div class="menu-item"><a href="/logout">Logout</a></div>
+    </div>
+    <div class="body">
+        <h1>Recorded Results</h1>
+        <div class="graph">
+            <label for="month-year">Select Month and Year:</label>
+            <select id="month-year" onchange="updateGraph()">
+            </select>
+        
+            <label for="affiliation">Select Affiliation:</label>
+            <select id="affiliation" onchange="updateGraph()">
+                <option value="San Juan">San Juan</option>
+                <option value="San Mateo">San Mateo</option>
+                <option value="San Pablo">San Pablo</option>
+            </select>
+        
+            <canvas id="resultsChart"></canvas>
+        </div>
+        
+</div>
+
+        <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #FFD700; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);">
+            <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download" style="width: 40px; height: 40px;" onclick="downloadApp()">
+        </div>
 
     <script>
         let allRecords = [];
         const chart = createChart();
 
         function createChart() {
-            const ctx = document.getElementById('resultsChart').getContext('2d');
-            return new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Leaf Scale', 'Mealy Bug', 'Twig Borer', 'Anthracnose', 'Brown Eye', 'Leaf Rust'],
-                    datasets: [{
-                        label: 'Tally of Results',
-                        data: [0, 0, 0, 0, 0, 0],
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }]
+    const ctx = document.getElementById('resultsChart').getContext('2d');
+    return new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Leaf Scale', 'Mealy Bug', 'Twig Borer', 'Anthracnose', 'Brown Eye', 'Leaf Rust'],
+            datasets: [{
+                label: 'Tally of Results',
+                data: [0, 0, 0, 0, 0, 0],
+                backgroundColor: '#8FBC8F', // Fill color
+                borderColor: '#2F4F4F',      // Border color
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    ticks: {
+                        color: 'black'  // X-axis label color
+                    }
                 },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+                y: {
+                    ticks: {
+                        color: 'black'  // Y-axis label color
                     }
                 }
-            });
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: 'black'  // Legend text color
+                    }
+                }
+            }
         }
+    });
+}
+
+
 
         async function fetchRecords() {
             const response = await fetch('/get-records');
@@ -129,6 +189,7 @@
     <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #4CAF50; display: flex; align-items: center; justify-content: center; cursor: pointer;">
         <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download" style="width: 30px; height: 30px;" onclick="downloadApp()">
     </div>
+    <script src="{{ url_for('serve_static', path='assets/js/circle-menu.js') }}"></script> 
 <script src="{{ url_for('serve_static', path='assets/js/app.js') }}"></script>
 </body>
 </html>
