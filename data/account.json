@@ -1,17 +1,16 @@
 {
     "accounts": [
-      {
-        "account-id": "user1",
-        "password": "1",
-        "affiliation": "San Mateo",
-        "position": "Farmer"
-      },
-      {
-        "account-id": "user2",
-        "password": "password456",
-        "affiliation": "San Juan",
-        "position": "Supervisor"
-      }
+        {
+            "account-id": "user1",
+            "password": "1",
+            "affiliation": "San Mateo",
+            "position": "Farmer"
+        },
+        {
+            "account-id": "user2",
+            "password": "password456",
+            "affiliation": "San Juan",
+            "position": "Supervisor"
+        }
     ]
-  }
-  
+}

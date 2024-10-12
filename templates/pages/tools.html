@@ -208,6 +208,25 @@ form > button, #retry-button, #more-info-button {
 #menu-submit:hover {
     background-color: #F5F5DC;
 }
+
+#btn-search {
+    width: 3.64rem;
+    height: 1.94rem;
+    padding: 0.5rem;
+    background-color: #FFD700;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 0.83rem;
+    text-transform: capitalize;
+    color: black;
+}
+
+#btn-search:hover {
+    background-color: #F5F5DC;
+}
+
     </style>
     
 </head>
@@ -217,14 +236,20 @@ form > button, #retry-button, #more-info-button {
     </div>
 
     <div class="nav" id="navMenu">
+        {% if session.get('position') == 'Supervisor' %}
+            <div class="menu-item"><a href="/admin.html">Admin</a></div>
+        {% endif %}
+    
         <div class="menu-item"><a href="/tools.html">Tools</a></div>
         <div class="menu-item"><a href="/resource.html">Resources</a></div>
+    
         <form action="/search" method="GET">
             <input type="text" placeholder="Search" name="query">
-            <button id="menu-submit" type="submit">Search</button>
+            <button id="btn-search" type="submit">Search</button>
         </form>
         <div class="menu-item"><a href="/logout">Logout</a></div>
     </div>
+    
     <div class="body">
             <div class="content-title">
                 <h1>Coffee Leaf Diagnosis</h1>
@@ -258,11 +283,6 @@ form > button, #retry-button, #more-info-button {
                 </div>
             </div>
 
-            {% if position == 'Supervisor' %}
-            <div class="redirect-button">
-                <button onclick="window.location.href='/recordedResults.html'">View Recorded Results</button>
-            </div>
-            {% endif %}
         <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #FFD700; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);">
             <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download" style="width: 40px; height: 40px;" onclick="downloadApp()">
         </div>

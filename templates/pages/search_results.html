@@ -113,14 +113,22 @@
     </div>
 
     <div class="nav" id="navMenu">
+        {% if session.get('position') == 'Supervisor' %}
+            <div class="menu-item"><a href="/admin.html">Admin</a></div>
+        {% endif %}
+    
         <div class="menu-item"><a href="/tools.html">Tools</a></div>
         <div class="menu-item"><a href="/resource.html">Resources</a></div>
+    
         <form action="/search" method="GET">
             <input type="text" placeholder="Search" name="query">
             <button type="submit">Search</button>
         </form>
+    
+    
         <div class="menu-item"><a href="/logout">Logout</a></div>
     </div>
+    
     <div class="body">
             <div class="content-title">
                 <h1>Search Results for "{{ query }}"</h1>

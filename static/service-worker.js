@@ -6,6 +6,7 @@ self.addEventListener('install', (event) => {
                 '/tools.html', 
                 '/resource.html', 
                 '/recordedResults.html', 
+                '/admin.html',
                 '/detail/', 
                 '/search', 
                 
