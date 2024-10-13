@@ -6,23 +6,23 @@
 
 .circle-menu {
     position: fixed;
-    top: 20px; /* Keep at top */
-    right: 20px; /* Keep right position */
+    top: 20px; 
+    right: 20px; 
     width: 60px;
     height: 60px;
     border-radius: 50%;
     color: white;
-    background-color: #2E86C1; /* Circle background color (blue) */
+    background-color: #2E86C1; 
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
-    transition: background-color 0.3s ease; /* Transition for hover effect */
+    transition: background-color 0.3s ease; 
 }
 
 .circle-menu:hover {
-    background-color: #5DADE2; /* Lighter blue on hover */
+    background-color: #5DADE2;
 }
 
 .circle-menu img {
@@ -32,13 +32,13 @@
 
 .nav {
     position: fixed;
-    top: 20px; /* Align the top with the circle */
-    right: 90px; /* Position left of the circle (60px width + 30px gap) */
-    background-color: #2E86C1; /* Nav background color (blue) */
+    top: 20px;
+    right: 90px;
+    background-color: #2E86C1;
     border-radius: 10px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
     padding: 1rem;
-    display: none; /* Initially hidden */
+    display: none; 
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
@@ -46,16 +46,16 @@
 
 .nav a {
     text-decoration: none;
-    color: inherit; /* Text color for better contrast */
+    color: inherit; 
     font-size: 1.2rem;
     display: block;
     margin: 0 0.5rem;
-    transition: background-color 0.3s ease; /* Transition for link hover effect */
+    transition: background-color 0.3s ease;
 }
 
 .nav .menu-item {
-    padding: 0.5rem; /* Padding for the div */
-    transition: background-color 0.3s ease; /* Transition for div hover effect */
+    padding: 0.5rem; 
+    transition: background-color 0.3s ease; 
     border-radius: 5px;
     width: 100%;
     color: white;
@@ -75,7 +75,7 @@
 
 .nav form button {
     padding: 0.5rem;
-    background-color: #3498DB; /* Button color (blue) */
+    background-color: #3498DB; 
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -83,16 +83,16 @@
 }
 
 .nav .menu-item:hover {
-    background-color: #5DADE2; /* Highlight color for divs on hover */
+    background-color: #5DADE2; 
     color: black;
 }
 
 .nav form button:hover {
-    background-color: #A2DFF7; /* Light blue for search button on hover */
+    background-color: #A2DFF7;
 }
 
 .show {
-    display: flex; /* Make the nav visible when the circle is clicked */
+    display: flex;
     animation: fadeIn 0.3s ease-in-out;
 }
 

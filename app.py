@@ -12,7 +12,6 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = 'coffee_diseases_detection'
 app.permanent_session_lifetime = timedelta(minutes=600)
 
-# Load model and JSON data
 model = load_model('coffee_plant_disease_model.keras')
 
 with open(os.path.join(app.root_path, 'data/diseases.json')) as f:
@@ -21,7 +20,6 @@ with open(os.path.join(app.root_path, 'data/diseases.json')) as f:
 diseases = [item for item in diseases_info if item['name'] not in ['Healthy'] and item['name'] in ['Anthracnose', 'Brown Eye', 'Leaf Rust']]
 pests = [item for item in diseases_info if item['name'] not in ['Healthy'] and item['name'] in ['Leaf Scale', 'Mealy Bug', 'Twig Borer']]
 
-# Account management functions
 def load_accounts():
     with open(os.path.join(app.root_path, 'data/account.json')) as f:
         return json.load(f)['accounts']
