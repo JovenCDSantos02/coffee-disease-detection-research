@@ -105,6 +105,26 @@
                 text-align: center;
             }
         }
+
+        .reverse {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+}
+
+.reverse img {
+    width: 1rem;
+}
+
+.menu-item img.hover-icon {
+    display: block;
+    margin-top: 5px; 
+    transition: 0.3s ease-in-out;
+}
+
+.menu-item:hover img.hover-icon {
+    content: url('{{ url_for("serve_static", path="assets/images/reverse-black.png") }}');
+}
     </style>
 </head>
 <body>
@@ -114,7 +134,10 @@
 
     <div class="nav" id="navMenu">
         {% if session.get('position') == 'Supervisor' %}
-            <div class="menu-item"><a href="/admin.html">Admin</a></div>
+            <div class="menu-item reverse">
+                <a href="/admin.html">Admin</a>
+                <img src="{{ url_for('serve_static', path='assets/images/reverse-white.png') }}" alt="icon" class="hover-icon">
+            </div>
         {% endif %}
     
         <div class="menu-item"><a href="/tools.html">Tools</a></div>
