@@ -6,186 +6,189 @@
     <title>Login</title>
     <link rel="manifest" href="{{ url_for('serve_static', path='manifest.json') }}">
     <style>
-      * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-      }
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-      body {
-          padding: 2rem;
-          min-height: 100vh;
-          background-image: linear-gradient(135deg, #8B4513, #8FBC8F);
-      }
+        /* Body Styling */
+        body {
+            padding: 2rem;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #8B4513, #8FBC8F);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-      div.body {
-          background-color: #2F4F4F;
-          width: 384px;
-          height: 640px;
-          margin: 0 auto;
-          border-radius: 1rem;
-          position: relative;
-      }
+        /* Container Styling */
+        .container {
+            background-color: #2F4F4F;
+            width: 384px;
+            height: 640px;
+            border-radius: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        }
 
-      div.top {
-          height: 30%;
-          color: #FFF;
-          font-size: 1.5rem;
-          text-align: center;
-          padding: 1rem 0 0 0;
-      }
+        .top {
+            text-align: center;
+            color: #FFF;
+            margin-top: 1rem;
+            padding-top: 2.25rem;
+        }
 
-      div.bottom {
-          height: 70%;
-          background-color: transparent;
-          padding: 1rem;
-          border-radius: 1rem;
-          position: relative;
-      }
+        .top img {
+            width: 150px;
+            height: 150px;
+        }
 
-      html {
-        height: 100%;
-      }
+        .top h2 {
+            margin-top: 1rem;
+            font-size: 1.5rem;
+        }
 
-      .login-box {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 400px;
-        padding: 40px;
-        transform: translate(-50%, -50%);
-        background: rgba(0,0,0,.5);
-        box-sizing: border-box;
-        box-shadow: 0 15px 25px rgba(0,0,0,.6);
-        border-radius: 10px;
-      }
+        .login-box {
+            margin-top: auto;
+            width: 100%;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 0 0 1rem 1rem;
+        }
 
-      .login-box h2 {
-        margin: 0 0 30px;
-        padding: 0;
-        color: #fff;
-        text-align: center;
-      }
+        .login-box h2 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
 
-      .login-box .user-box {
-        position: relative;
-      }
+        /* Input Styling */
+        .user-box {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
 
-      .login-box .user-box input {
-        width: 100%;
-        padding: 10px 0;
-        font-size: 16px;
-        color: #fff;
-        margin-bottom: 30px;
-        border: none;
-        border-bottom: 1px solid #fff;
-        outline: none;
-        background: transparent;
-      }
+        .user-box input {
+            width: 100%;
+            padding: 10px 0;
+            font-size: 1rem;
+            color: #fff;
+            border: none;
+            border-bottom: 1px solid #fff;
+            background: transparent;
+            outline: none;
+        }
 
-      .login-box .user-box label {
-        position: absolute;
-        top: 0;
-        left: 0;
-        padding: 10px 0;
-        font-size: 16px;
-        color: #fff;
-        pointer-events: none;
-        transition: .5s;
-      }
+        .user-box label {
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 10px 0;
+            font-size: 1rem;
+            color: #fff;
+            pointer-events: none;
+            transition: 0.3s;
+        }
 
-      .login-box .user-box input:focus ~ label,
-      .login-box .user-box input:valid ~ label {
-        top: -20px;
-        left: 0;
-        color: #03e9f4;
-        font-size: 12px;
-      }
+        .user-box input:focus ~ label,
+        .user-box input:valid ~ label {
+            top: -20px;
+            font-size: 0.75rem;
+            color: #03e9f4;
+        }
 
-      .login-box form a {
-        position: relative;
-        display: inline-block;
-        padding: 10px 20px;
-        color: #03e9f4;
-        font-size: 16px;
-        text-decoration: none;
-        text-transform: uppercase;
-        overflow: hidden;
-        transition: .5s;
-        margin-top: 40px;
-        letter-spacing: 4px;
-      }
+        /* Button Styling */
+        button[type="submit"] {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            background: #2F4F4F;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
 
-      button[type="submit"] {
-  cursor: pointer;
-  background-color: #2F4F4F;
-  color: #eee;
-  font-weight: 700;
-  text-transform: uppercase;
-  border-radius: 0.25rem;
-  padding: 1rem;
-  width: 100%;
-  border: none;
-  transition: background-color 0.3s;
-}
+        button[type="submit"]:hover {
+            background-color: #8FBC8F;
+        }
 
-button[type="submit"]:focus,
-button[type="submit"]:hover {
-  background-color: #8FBC8F;
-}
+        /* Flash Messages */
+        ul {
+            list-style: none;
+            margin-top: 1rem;
+            text-align: center;
+        }
 
-ul {
-  list-style-type: none; 
-  margin-top: 2rem;
-  text-align: center; 
-}
+        li {
+            color: #FFF;
+            font-size: 0.875rem;
+            font-style: italic;
+        }
 
-li {
-  color: white;
-  font-style: italic;
-  font-size: 1rem; 
-}
+        /* Download Circle */
+        .download-circle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #FFD700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
 
+        .download-circle img {
+            width: 40px;
+            height: 40px;
+        }
     </style>
 </head>
 <body>
-  <div class="body">
-    <div class="top">
-      <img src="{{ url_for('serve_static', path='assets/images/logo.png') }}" style="width: 150px; height: 150px;" alt=""> <br>
-      <h2>Coffee Leaf Diagnosis</h2>
+    <div class="container">
+        <div class="top">
+            <img src="{{ url_for('serve_static', path='assets/images/logo.png') }}" alt="Logo">
+            <h2>Coffee Leaf Diagnosis</h2>
+        </div>
+        <div class="login-box">
+            <h2>Login</h2>
+            <form method="POST">
+                <div class="user-box">
+                    <input type="text" id="account-id" name="account-id" required>
+                    <label for="account-id">Account ID</label>
+                </div>
+                <div class="user-box">
+                    <input type="password" id="password" name="password" required>
+                    <label for="password">Password</label>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul>
+                        {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+        </div>
     </div>
-    <div class="bottom">
-      <div class="login-box">
-        <h2>Login</h2>
-        <form method="POST">
-            <div class="user-box">
-              <input type="text" id="account-id" name="account-id" required>
-              <label for="account-id">Account ID</label>
-            </div>
-            <div class="user-box">
-              <input type="password" id="password" name="password" required>
-              <label for="password">Password</label>
-            </div>
-            <button type="submit">LOGIN</button>
-        </form>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            <ul>
-              {% for category, message in messages %}
-                <li class="{{ category }}">{{ message }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        {% endwith %}
-      </div>
+    <div class="download-circle" onclick="downloadApp()">
+        <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download">
     </div>
-  </div>
 
-  <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #FFD700; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);">
-    <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download" style="width: 40px; height: 40px;" onclick="downloadApp()">
-  </div>
-  
-<script src="{{ url_for('serve_static', path='assets/js/app.js') }}"></script>
+    <script src="{{ url_for('serve_static', path='assets/js/app.js') }}"></script>
 </body>
 </html>

@@ -72,7 +72,7 @@ button[type="submit"]:hover {
     border-radius: 10px;
     padding: 30px;
     text-align: center;
-    font-size: 18px;
+    font-size: 1rem;
     color: #aaa;
     transition: border-color 0.3s;
     cursor: pointer;
@@ -129,13 +129,13 @@ button[type="submit"]:hover {
 .disease-info p {
     margin: 10px 0;
     line-height: 1.6;
-    font-size: 16px;
+    font-size: 1rem;
     color: #333;
 }
 
 .disease-info p#disease-name {
     font-weight: bold;
-    font-size: 20px;
+    font-size: 1.25rem;
     color: #007BFF;
     margin-bottom: 15px;
 }
@@ -245,6 +245,63 @@ form > button, #retry-button, #more-info-button {
 .menu-item:hover img.hover-icon {
     content: url('{{ url_for("serve_static", path="assets/images/reverse-black.png") }}');
 }
+
+#history-section {
+                display: none;
+                margin-top: 20px;
+                position: absolute;
+    bottom: 100px;
+    left: 20px;
+    width: 30%;
+    border-radius: 1rem;
+    padding: 1rem;
+    background-color: white;
+            }
+
+            .history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    
+}
+
+.history-table th, .history-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.history-table th {
+    background-color: #2F4F4F;
+    font-weight: bold;
+    color: white;
+}
+
+.history-table tr:nth-child(even) {
+    background-color: #8FBC8F;
+}
+
+
+            .toggle-history-btn {
+                padding: 0.5rem 1rem;
+                background-color: #2F4F4F;
+                color: #FFF;
+                font-weight: 700;
+                text-transform: uppercase;
+                border-radius: 0.25rem;
+                cursor: pointer;
+                border: none;
+                margin: 10px 0;
+                padding: 1rem;
+                position: absolute;
+                bottom: 20px;
+                left: 20px;
+
+            }
+
+            .toggle-history-btn:hover {
+                background-color: #8FBC8F;
+            }
     </style>
     
 </head>
@@ -256,12 +313,12 @@ form > button, #retry-button, #more-info-button {
     <div class="nav" id="navMenu">
         {% if session.get('position') == 'Supervisor' %}
             <div class="menu-item reverse">
-                <a href="/admin.html">Admin</a>
+                <a href="/admin.html">Change to Admin</a>
                 <img src="{{ url_for('serve_static', path='assets/images/reverse-white.png') }}" alt="icon" class="hover-icon">
             </div>
         {% endif %}
     
-        <div class="menu-item"><a href="/tools.html">Tools</a></div>
+        <div class="menu-item"><a href="/tools.html">Diagnostic Tool</a></div>
         <div class="menu-item"><a href="/resource.html">Resources</a></div>
     
         <form action="/search" method="GET">
@@ -304,6 +361,22 @@ form > button, #retry-button, #more-info-button {
                 </div>
             </div>
 
+            <button class="toggle-history-btn" id="history-btn" onclick="toggleHistory()">Show Diagnosis History</button>
+
+            <div class="history-section" id="history-section">
+                <h2>Diagnosis History</h2>
+                <table id="history-table" class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-content" class="history-content"></tbody>
+                </table>
+            </div>            
+            
+
         <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #FFD700; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);">
             <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download" style="width: 40px; height: 40px;" onclick="downloadApp()">
         </div>
@@ -315,6 +388,59 @@ form > button, #retry-button, #more-info-button {
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('plant-image');
         const preview = document.getElementById('preview');
+        const historySection = document.getElementById('history-section');
+
+        $(document).ready(() => {
+    fetchHistory();
+});
+
+function toggleHistory() {
+            const historybtn = document.getElementById('history-btn');
+            if (historySection.style.display === 'none') {
+                historySection.style.display = 'block';
+                historybtn.innerText = "Hide Diagnosis History";
+            } else {
+                historySection.style.display = 'none';
+                historybtn.innerText = "Show Diagnosis History";
+            }
+        }
+
+function fetchHistory() {
+    $.ajax({
+        url: '/history',
+        type: 'GET',
+        success: function (response) {
+            const historySection = $('#history-section');
+            const historyContent = $('#history-content');
+
+            if (response.error) {
+                historyContent.html('<p>' + response.error + '</p>');
+                historySection.show();
+                historySection.hide();
+                return;
+            }
+
+            if (response.length === 0) {
+                historyContent.html('<tr><td colspan="2">No history records found.</td></tr>');
+            } else {
+                const historyRows = response.map(record => `
+                    <tr>
+                        <td>${record.date}</td>
+                        <td>${record.results}</td>
+                    </tr>
+                `).join('');
+                historyContent.html(historyRows);
+            }
+            
+            historySection.show();
+            historySection.hide();
+        },
+        error: function (xhr, status, error) {
+            console.error('Error fetching history:', error);
+        }
+    });
+}
+
 
         dropZone.addEventListener('click', () => {
             fileInput.click();

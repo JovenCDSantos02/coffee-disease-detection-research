@@ -42,7 +42,7 @@ def login():
             if account['account-id'] == account_id and account['password'] == password:
                 session['account_id'] = account_id
                 session['position'] = account['position']
-                session['affiliation'] = account.get('affiliation', '')
+                session['farm'] = account.get('farm', '')
                 session.permanent = True
                 return redirect(url_for('tools'))
 
@@ -115,7 +115,7 @@ def predict():
     disease_info = next((item for item in diseases_info if item["name"] == predicted_disease_name), None)
     if disease_info:
         response = {'disease_name': disease_info['name'], 'disease_description': disease_info['description'], 'disease_cure': disease_info['cure'], 'disease_image': disease_info['image']}
-        record = {"date": str(datetime.date.today()), "account-id": session['account_id'], "results": predicted_disease_name, "affiliation": session.get('affiliation', 'Unknown')}
+        record = {"date": str(datetime.date.today()), "account-id": session['account_id'], "results": predicted_disease_name, "farm": session.get('farm', 'Unknown')}
         result_record_path = os.path.join(app.root_path, 'data/resultRecord.json')
         if os.path.exists(result_record_path):
             with open(result_record_path, 'r+') as f:
@@ -138,9 +138,11 @@ def get_records():
         flash('You need to log in first.', 'error')
         return redirect(url_for('login'))
 
-    with open(os.path.join(app.root_path, 'data/resultRecord.json')) as f:
-        records = json.load(f)
-    return jsonify(records)
+    result_file_path = os.path.join(app.root_path, 'data/resultRecord.json')
+    with open(result_file_path) as f:
+        result_records = json.load(f)
+
+    return jsonify(result_records)
 
 @app.route('/recordedResults.html')
 def recorded_results():
@@ -148,7 +150,14 @@ def recorded_results():
         flash('You need to log in first.', 'error')
         return redirect(url_for('login'))
 
-    return render_template('pages/recordedResults.html')
+    result_file_path = os.path.join(app.root_path, 'data/resultRecord.json')
+    with open(result_file_path) as f:
+        result_records = json.load(f)
+
+    farms = list(set([record['farm'] for record in result_records]))
+    month_years = list(set([record['date'][:7] for record in result_records]))
+
+    return render_template('pages/recordedResults.html', farms=farms, month_years=month_years)
 
 @app.route('/admin.html')
 def admin():
@@ -161,30 +170,12 @@ def admin():
         return redirect(url_for('tools'))
 
     accounts = load_accounts()
-    return render_template('pages/admin.html', accounts=accounts)
 
-@app.route('/add_user', methods=['POST'])
-def add_user():
-    account_id = request.form['account-id']
-    password = request.form['password']
-    affiliation = request.form['affiliation']
-    position = request.form['position'] 
+    farms = list(set([account['farm'] for account in accounts]))
 
-    accounts = load_accounts()
+    return render_template('pages/admin.html', accounts=accounts, farms=farms)
 
-    if any(account['account-id'] == account_id for account in accounts):
-        flash('Account ID already exists.', 'error')
-        return redirect(url_for('admin'))
-
-    new_account = {'account-id': account_id, 'password': password, 'affiliation': affiliation, 'position': position}  # Capitalization here
-    accounts.append(new_account)
-    save_accounts(accounts)
-
-    flash('User added successfully!', 'success')
-    return redirect(url_for('admin'))
-
-
-@app.route('/delete_user/<account_id>')
+@app.route('/delete_user/<account_id>', methods=['POST'])
 def delete_user(account_id):
     accounts = load_accounts()
     updated_accounts = [account for account in accounts if account['account-id'] != account_id]
@@ -197,22 +188,75 @@ def delete_user(account_id):
 
     return redirect(url_for('admin'))
 
+@app.route('/add_user', methods=['POST'])
+def add_user():
+    account_id = request.form['account-id']
+    password = request.form['password']
+    position = request.form['position']
+    
+    farm = request.form['farm']
+    if farm == 'add_new_farm':
+        farm = request.form['newFarm']
+    
+    new_account = {
+        "account-id": account_id,
+        "password": password,
+        "farm": farm,
+        "position": position
+    }
+
+    accounts = load_accounts()
+    accounts.append(new_account)
+    save_accounts(accounts)
+    
+    flash('User added successfully.', 'success')
+    return redirect(url_for('admin'))
+
 @app.route('/edit_user/<account_id>', methods=['POST'])
 def edit_user(account_id):
+    password = request.form.get('password')
+    farm = request.form.get('farm')
+    new_farm = request.form.get('newFarm')
+    position = request.form.get('position')
+
+    if farm == 'add_new_farm' and new_farm:
+        farm = new_farm  
+
     accounts = load_accounts()
-    account = next((acc for acc in accounts if acc['account-id'] == account_id), None)
+    for user in accounts:
+        if user['account-id'] == account_id:
+            user['password'] = password
+            user['farm'] = farm 
+            user['position'] = position
+            break
 
-    if not account:
-        flash('User not found.', 'error')
-        return redirect(url_for('admin'))
-
-    account['password'] = request.form['password']
-    account['affiliation'] = request.form['affiliation']
-    account['position'] = request.form['position']  
     save_accounts(accounts)
-
-    flash('User updated successfully!', 'success')
+    flash('User updated successfully.', 'success')
     return redirect(url_for('admin'))
+
+@app.route('/history', methods=['GET'])
+def get_history():
+    account_id = session.get('account_id') 
+    if not account_id:
+        return jsonify({"error": "User not logged in"}), 401
+
+    try:
+        result_record_path = os.path.join(app.root_path, 'data/resultRecord.json')
+        with open(result_record_path, 'r') as file:
+            data = json.load(file)
+
+        user_history = [record for record in data if record['account-id'] == account_id]
+        sorted_history = sorted(
+            user_history,
+            key=lambda x: datetime.datetime.strptime(x['date'], "%Y-%m-%d"),  
+            reverse=True
+        )
+        return jsonify(sorted_history)
+
+    except Exception as e:
+        app.logger.error(f"Error in /history: {e}")
+        return jsonify({"error": "An error occurred while fetching history."}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)

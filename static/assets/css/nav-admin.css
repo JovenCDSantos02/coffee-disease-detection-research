@@ -12,7 +12,7 @@
     height: 60px;
     border-radius: 50%;
     color: white;
-    background-color: #2E86C1; 
+    background-color: #2F4F4F; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -22,7 +22,7 @@
 }
 
 .circle-menu:hover {
-    background-color: #5DADE2;
+    background-color: #8FBC8F;
 }
 
 .circle-menu img {
@@ -34,7 +34,7 @@
     position: fixed;
     top: 20px;
     right: 90px;
-    background-color: #2E86C1;
+    background-color: #2F4F4F;
     border-radius: 10px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
     padding: 1rem;
@@ -47,7 +47,7 @@
 .nav a {
     text-decoration: none;
     color: inherit; 
-    font-size: 1.2rem;
+    font-size: 1rem;
     display: block;
     margin: 0 0.5rem;
     transition: background-color 0.3s ease;
@@ -75,7 +75,7 @@
 
 .nav form button {
     padding: 0.5rem;
-    background-color: #3498DB; 
+    background-color: #2F4F4F; 
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -83,7 +83,7 @@
 }
 
 .nav .menu-item:hover {
-    background-color: #5DADE2; 
+    background-color: #8FBC8F; 
     color: black;
 }
 

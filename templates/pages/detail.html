@@ -71,13 +71,13 @@
         .disease-info p {
             margin: 10px 0;
             line-height: 1.6;
-            font-size: 16px;
+            font-size: 1rem;
             color: #333;
         }
 
         .disease-info .disease-title {
             font-weight: bold;
-            font-size: 20px;
+            font-size: 1rem;
             color: black;
             margin-bottom: 15px;
         }
@@ -130,12 +130,12 @@
     <div class="nav" id="navMenu">
         {% if session.get('position') == 'Supervisor' %}
             <div class="menu-item reverse">
-                <a href="/admin.html">Admin</a>
+                <a href="/admin.html">Change to Admin</a>
                 <img src="{{ url_for('serve_static', path='assets/images/reverse-white.png') }}" alt="icon" class="hover-icon">
             </div>
         {% endif %}
     
-        <div class="menu-item"><a href="/tools.html">Tools</a></div>
+        <div class="menu-item"><a href="/tools.html">Diagnostic Tool</a></div>
         <div class="menu-item"><a href="/resource.html">Resources</a></div>
     
         <form action="/search" method="GET">

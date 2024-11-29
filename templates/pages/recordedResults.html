@@ -7,6 +7,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="manifest" href="{{ url_for('serve_static', path='manifest.json') }}">
     <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/nav-admin.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
     <style>
         * {
           margin: 0;
@@ -17,7 +19,7 @@
       body {
           padding: 2rem;
           min-height: 100vh;
-          background-image: linear-gradient(135deg, #1E90FF, #00BFFF); 
+          background-image: linear-gradient(135deg, #8B4513, #8FBC8F);
       }
       .body {
           width: 90%;
@@ -28,7 +30,7 @@
           text-align: center;
       }
       .graph {
-          width: 80%;
+          width: 70%;
           margin: 1rem auto 0; 
           text-align: center; 
       }
@@ -52,6 +54,27 @@
 .menu-item:hover img.hover-icon {
     content: url('{{ url_for("serve_static", path="assets/images/reverse-black.png") }}');
 }
+
+#popup table {
+    border-collapse: collapse;
+    width: 100%;
+}
+#popup table thead{
+    background-color: #2F4F4F;
+    color: white;
+}
+
+#popup table tr:nth-child(even){
+    background-color: #8fbc8f88;
+}
+
+#popup th, #popup td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ddd;
+    
+}
+
     </style>
 </head>
 
@@ -63,7 +86,7 @@
     <div class="nav" id="navMenu">
         {% if session.get('position') == 'Supervisor' %}
             <div class="menu-item reverse">
-                <a href="/tools.html">User</a>
+                <a href="/tools.html">Change to User</a>
                 <img src="{{ url_for('serve_static', path='assets/images/reverse-white.png') }}" alt="icon" class="hover-icon">
             </div>
             <div class="menu-item"><a href="/admin.html">User Management</a></div>
@@ -79,24 +102,50 @@
             <select id="month-year" onchange="updateGraph()">
             </select>
         
-            <label for="affiliation">Select Affiliation:</label>
-            <select id="affiliation" onchange="updateGraph()">
-                <option value="San Juan">San Juan</option>
-                <option value="San Mateo">San Mateo</option>
-                <option value="San Pablo">San Pablo</option>
+            <label for="farm">Select Farm:</label> 
+            <select id="farm" onchange="updateGraph()">
             </select>
-        
             <canvas id="resultsChart"></canvas>
+            <button onclick="generatePDF()" style="margin-top: 1rem; margin-right: 1rem; padding: 0.5rem 3rem; background: #FFD700; color: black; border: none; border-radius: 5px; cursor: pointer;">
+                Download PDF
+            </button>
+            <button onclick="openPopup()" style="margin-top: 1rem; margin-left: 1rem; padding: 0.5rem 3rem; background: #2F4F4F; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                View All Diagnosis
+            </button>
         </div>
         
+        
+    
+        <div id="popup" style="display: none; position: fixed; top: 0; right: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.25); border-radius: 10px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); overflow: auto; padding: 1rem;">
+            <div id="popup-body" style="margin-top:5%; margin-left: 20%; width: 60%; height: 70%; background: white; border-radius: 10px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); overflow: auto; padding: 1rem;">
+            <button onclick="closePopup()" style="position: absolute; top: 12.5%; right: 22.5%; background: red; color: white; border: none; padding: 0.75rem 1rem; border-radius: 5px; cursor: pointer;">Close</button>
+            <br><h2>Diagnosis Results</h2>
+                <label for="popup-month-year">Month-Year:</label>
+                <select id="popup-month-year" onchange="updatePopupTable()"></select>
+                <label for="popup-farm">Farm:</label>
+                <select id="popup-farm" onchange="updatePopupTable()"></select>
+                <table border="1" style="width: 100%; text-align: left; margin-top: 1rem;">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Account ID</th>
+                            <th>Result</th>
+                            <th>Farm</th>
+                        </tr>
+                    </thead>
+                    <tbody id="popup-table-body"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
-
-    <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #1E90FF; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-        <img src="{{ url_for('serve_static', path='assets/images/download-icon-white.png') }}" alt="Download" style="width: 30px; height: 30px;" onclick="downloadApp()">
+    <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #FFD700; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);">
+        <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download" style="width: 40px; height: 40px;" onclick="downloadApp()">
     </div>
     
     <script src="{{ url_for('serve_static', path='assets/js/circle-menu.js') }}"></script> 
     <script src="{{ url_for('serve_static', path='assets/js/app.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
     <script>
         let allRecords = [];
@@ -111,8 +160,8 @@
                     datasets: [{
                         label: 'Tally of Results',
                         data: [0, 0, 0, 0, 0, 0],
-                        backgroundColor: '#00BFFF', 
-                        borderColor: '#1E90FF',   
+                        backgroundColor: '#2F4F4F', 
+                        borderColor: 'white',   
                         borderWidth: 1
                     }]
                 },
@@ -144,6 +193,7 @@
             const response = await fetch('/get-records');
             allRecords = await response.json();
             populateMonthYearDropdown();
+            populateFarmDropdown();
             updateGraph();
         }
 
@@ -165,6 +215,22 @@
             monthYearSelect.value = currentMonthYear;
         }
 
+        function populateFarmDropdown() {
+            const farmSelect = document.getElementById('farm');
+            const uniqueFarms = [...new Set(allRecords.map(record => record.farm))];
+
+            uniqueFarms.forEach(farm => {
+                const option = document.createElement('option');
+                option.value = farm;
+                option.textContent = farm;
+                farmSelect.appendChild(option);
+            });
+
+            if (uniqueFarms.length > 0) {
+                farmSelect.value = uniqueFarms[0];
+            }
+        }
+
         function getCurrentMonthYear() {
             const now = new Date();
             const month = now.getMonth() + 1; 
@@ -180,17 +246,15 @@
 
         function updateGraph() {
             const selectedMonthYear = document.getElementById("month-year").value;
-            const selectedAffiliation = document.getElementById("affiliation").value;
+            const selectedFarm = document.getElementById("farm").value;
 
             const [monthName, year] = selectedMonthYear.split(" ");
             const month = ("0" + (new Date(monthName + " 1, 2000").getMonth() + 1)).slice(-2);
             const filterDate = `${year}-${month}`;
 
-            const filteredRecords = allRecords.filter(record => {
-                return record.date.startsWith(filterDate) && record.affiliation === selectedAffiliation;
-            });
+            const filteredRecords = allRecords.filter(record => record.date.startsWith(filterDate) && record.farm === selectedFarm);
 
-            const resultsTally = {
+            const tally = {
                 "Leaf Scale": 0,
                 "Mealy Bug": 0,
                 "Twig Borer": 0,
@@ -200,14 +264,94 @@
             };
 
             filteredRecords.forEach(record => {
-                resultsTally[record.results] = (resultsTally[record.results] || 0) + 1;
+                if (tally.hasOwnProperty(record.results)) {
+                    tally[record.results]++;
+                }
             });
 
-            chart.data.datasets[0].data = Object.values(resultsTally);
+            chart.data.datasets[0].data = Object.values(tally);
             chart.update();
         }
 
-        window.onload = fetchRecords;
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.text('Recorded Results', 10, 10);
+            doc.text(`Month and Year: ${document.getElementById("month-year").value}`, 10, 20);
+            doc.text(`Farm: ${document.getElementById("farm").value}`, 10, 30);
+
+            doc.addImage(chart.toBase64Image(), 'JPEG', 15, 40, 180, 100);
+
+            doc.save('recorded-results.pdf');
+        }
+
+        function openPopup() {
+    document.getElementById('popup').style.display = 'block';
+    populatePopupFilters();
+    updatePopupTable();
+}
+
+function closePopup() {
+    document.getElementById('popup').style.display = 'none';
+}
+
+function populatePopupFilters() {
+    const popupMonthYearSelect = document.getElementById('popup-month-year');
+    const popupFarmSelect = document.getElementById('popup-farm');
+
+    popupMonthYearSelect.innerHTML = '';
+    popupFarmSelect.innerHTML = '';
+
+    const uniqueMonthYears = [...new Set(allRecords.map(record => {
+        const [year, month] = record.date.split('-').slice(0, 2);
+        return `${getMonthName(month)} ${year}`;
+    }))];
+    uniqueMonthYears.forEach(monthYear => {
+        const option = document.createElement('option');
+        option.value = monthYear;
+        option.textContent = monthYear;
+        popupMonthYearSelect.appendChild(option);
+    });
+
+    const uniqueFarms = [...new Set(allRecords.map(record => record.farm))];
+    uniqueFarms.forEach(farm => {
+        const option = document.createElement('option');
+        option.value = farm;
+        option.textContent = farm;
+        popupFarmSelect.appendChild(option);
+    });
+}
+
+function updatePopupTable() {
+    const popupTableBody = document.getElementById('popup-table-body');
+    popupTableBody.innerHTML = '';
+
+    const selectedMonthYear = document.getElementById('popup-month-year').value;
+    const selectedFarm = document.getElementById('popup-farm').value;
+
+    const [monthName, year] = selectedMonthYear.split(' ');
+    const month = ("0" + (new Date(monthName + " 1, 2000").getMonth() + 1)).slice(-2);
+    const filterDate = `${year}-${month}`;
+
+    const filteredRecords = allRecords.filter(record =>
+        record.date.startsWith(filterDate) && (selectedFarm === 'All' || record.farm === selectedFarm)
+    );
+
+    filteredRecords.forEach(record => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${record.date}</td><td>${record['account-id']}</td><td>${record.results}</td><td>${record.farm}</td>`;
+        popupTableBody.appendChild(row);
+    });
+}
+
+
+        function downloadApp() {
+            alert('App download initiated');
+        }
+
+
+        fetchRecords();
     </script>
 </body>
 </html>
