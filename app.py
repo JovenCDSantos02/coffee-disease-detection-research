@@ -6,6 +6,7 @@ import json
 import os
 from datetime import timedelta
 import datetime
+import gdown
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
@@ -14,7 +15,9 @@ app.permanent_session_lifetime = timedelta(minutes=600)
 
 model_path = '/var/data/coffee_plant_disease_model.keras'
 if not os.path.exists(model_path):
-    os.system(f"wget -O {model_path} https://your-cloud-storage-link/model.keras")
+    google_drive_file_id = '1ImDY6s5Cjux5YOgodQcDmW8U3mGbXgcq'
+    download_url = f'https://drive.google.com/uc?export=download&id={google_drive_file_id}'
+    gdown.download(download_url, model_path, quiet=False)
 model = load_model(model_path)
 
 with open(os.path.join(app.root_path, 'data/diseases.json')) as f:
