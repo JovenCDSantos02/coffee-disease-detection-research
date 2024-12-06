@@ -13,7 +13,7 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = 'coffee_diseases_detection'
 app.permanent_session_lifetime = timedelta(minutes=600)
 
-model_path = '/coffee_plant_disease_model.keras'
+model_path = './coffee_plant_disease_model.keras'
 if not os.path.exists(model_path):
     google_drive_file_id = '1ImDY6s5Cjux5YOgodQcDmW8U3mGbXgcq'
     download_url = f'https://drive.google.com/uc?export=download&id={google_drive_file_id}'
