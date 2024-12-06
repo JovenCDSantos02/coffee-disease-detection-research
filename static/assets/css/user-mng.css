@@ -24,6 +24,11 @@
             color: #333;
         }
 
+        .table-container {
+            overflow-x: auto; /* Enable horizontal scrolling */
+            margin-bottom: 1.5rem; /* Maintain spacing below */
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -61,9 +66,10 @@
             transition: background-color 0.3s ease;
             text-transform: uppercase; 
             font-weight: bold; 
-            width: 40%;
-            height: 40px; 
+            width: 30%;
+            height: 30px; 
             display: inline-block; 
+            margin: 3px;
         }
 
         tr:nth-child(odd) .btn-primary {
@@ -94,7 +100,7 @@
             background-color: #2F4F4F;
             color: white;
         }
-
+            
         .modal {
     display: none; 
     position: fixed;
@@ -177,7 +183,7 @@
 }
 
 .btn-success:hover {
-    background-color: white; 
+    background-color: #7A9A5F; 
     color: black;
 }
 
@@ -201,6 +207,3 @@
     transition: 0.3s ease-in-out;
 }
 
-.menu-item:hover img.hover-icon {
-    content: url('{{ url_for("serve_static", path="assets/images/reverse-black.png") }}');
-}

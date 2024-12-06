@@ -20,7 +20,7 @@
         }
 
         .body {
-            width: 90%;
+            width: 70%;
             margin: 1rem auto;
             background-color: #FFF;
             border-radius: 1rem;
@@ -37,7 +37,7 @@
             max-width: 1200px;
             padding: 1rem;
             border-radius: 8px;
-            background-color: white;
+            background-color: #2F4F4F;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             margin: 0 auto;
         }
@@ -50,7 +50,7 @@
             background-color: white; 
             padding: 0 0 0.5rem 0;
             border-radius: 10px;
-            transition: transform 0.3s ease, background-color 0.3s ease;
+            transition: transform 0.3s ease, background-color: 0.3s ease;
             width: 150px;
             box-sizing: border-box;
             color: #3B2F2F;
@@ -87,7 +87,7 @@
             font-size: 1.5rem;
             margin-bottom: 1rem;
             font-weight: 500;
-            color: #2F4F4F;
+            color: #FFF;
             text-align: center;
         }
 
@@ -97,11 +97,15 @@
             justify-content: center;
             gap: 1rem;
         }
-
-        @media screen and (max-width: 768px) {
+        .reverse {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+}
+        @media screen and (max-width: 768px) and(min-width: 480px) {
             .title, .nav {
                 display: block;
-                width: 100%;
+                width: 60%;
                 text-align: center;
             }
         }
@@ -169,7 +173,9 @@
                     {% endfor %}
                 </div>
             </div>
+            <br>
             <hr>
+            <br>
             <div class="pests">
                 <div class="subTitle">Pests</div>
                 <div class="item-container">

@@ -7,11 +7,217 @@
     <link rel="manifest" href="{{ url_for('serve_static', path='manifest.json') }}">
     <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/nav-admin.css') }}">
     <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/user-mng.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+<style>
+    body {
+        padding: 2rem;
+        min-height: 100vh;
+        background-image: linear-gradient(135deg, #8B4513, #8FBC8F);
+        margin: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    .body {
+        width: 65%;
+        margin: 1rem auto 0;
+        background-color: #FFFFFF;
+        border-radius: 1rem;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .dashboard {
+
+        margin: 20px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .dashboard h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .dashboard-cards {
+        display: flex;
+        justify-content: space-around;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+
+    }
+
+    .card {
+        background: #ACD1AF;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        flex: 1;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        margin: 10px;
+        min-width: 220px;
+        max-width: 300px;
+        transition: all 0.3s ease;
+    }
+
+    .card h2 {
+        margin-bottom: 10px;
+        font-size: 18px;
+    }
+
+    .card p {
+        font-size: 24px;
+        font-weight: bold;
+        color: #007bff;
+    }
+
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    @media (max-width: 1024px) {
+        .body {
+            width: 90%;
+        }
+
+        .dashboard-cards {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .card {
+            width: 80%;
+            margin-bottom: 20px;
+        }
+
+
+        .btn {
+            width: 100%;
+            text-align: center;
+        }
+
+        .menu-item a {
+            font-size: 16px;
+            padding: 8px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-cards {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .card {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .circle-menu img {
+            width: 30px;
+            height: 30px;
+        }
+
+        .btn {
+            font-size: 14px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .body {
+            width: 90%;
+        }
+        .circle-menu img {
+            width: 25px;
+            height: 25px;
+        }
+
+        .btn {
+            font-size: 14px;
+        }
+
+        .modal-dialog {
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .menu-item a {
+            font-size: 14px;
+            padding: 10px;
+        }
+
+        .dashboard h1 {
+            font-size: 20px;
+        }
+
+        .dashboard-cards {
+            padding: 0 10px;
+        }
+    }
+
+    .modal {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-dialog {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        width: 50%;
+        max-width: 600px;
+    }
+
+    .btn-close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    .download-circle {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #FFD700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .download-circle img {
+        width: 40px;
+        height: 40px;
+    }
+    .menu-item:hover img.hover-icon {
+    content: url('{{ url_for("serve_static", path="assets/images/reverse-black.png") }}');
+}
+</style>
 </head>
 <body>
+
         <div class="circle-menu" onclick="toggleMenu()">
             <img src="{{ url_for('serve_static', path='assets/images/menu-icon.png') }}" alt="Menu">
         </div>
+
         
         <div class="nav" id="navMenu">
             {% if session.get('position') == 'Supervisor' %}
@@ -24,10 +230,34 @@
             {% endif %}
             <div class="menu-item"><a href="/logout">Logout</a></div>
         </div>
+
+
+        <div class="dashboard">
+            <h1>Dashboard</h1>
+            <div class="dashboard-cards">
+                <div class="card">
+                    <h2>Total Healthy:</h2>
+                    <p>Loading...</p>
+                </div>
+                <div class="card">
+                    <h2>Total Unhealthy:</h2>
+                    <p>Loading...</p>
+                </div>
+                <div class="card">
+                    <h2>Number of Farmers:</h2>
+                    <p>Loading...</p>
+                </div>
+                <div class="card">
+                    <h2>Number of Farms:</h2>
+                    <p>Loading...</p>
+                </div>
+            </div>
+        </div>
+        
         
         <div class="body">
             <h1>User Management</h1>
-            
+               <div class="table-container">
             <table>
                 <thead>
                     <tr>
@@ -44,15 +274,21 @@
                         <td>{{ account['farm'] }}</td>
                         <td>{{ account['position'] }}</td>
                         <td>
-                            <button class="btn btn-primary" onclick="openEditModal('{{ account['account-id'] }}', '{{ account['password'] }}', '{{ account['farm'] }}', '{{ account['position'] }}')">Edit</button>
-                            <form action="/delete_user/{{ account['account-id'] }}" method="POST" style="display: inline;">
-                                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this user?');">Delete</button>
+                           <button class="btn btn-primary" onclick="openEditModal('{{ account['account-id'] }}', '{{ account['password'] }}', '{{ account['farm'] }}', '{{ account['position'] }}')">
+                                <i class="fas fa-edit"></i>
+                                    </button>
+
+                        <form action="/delete_user/{{ account['account-id'] }}" method="POST" style="display: inline;">
+                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this user?');">
+                             <i class="fas fa-trash-alt"></i>
+                        </button>   
                             </form>                            
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
 
             <button class="btn btn-success" onclick="openModal('addUserModal')">Add New User</button>
 
@@ -202,7 +438,26 @@ function handleEditFarmChange() {
     }
 }
 
+async function fetchResultCounts() {
+        try {
+            const response = await fetch('/count_results');
+            if (!response.ok) {
+                throw new Error('Failed to fetch result counts');
+            }
+            const data = await response.json();
 
+            document.querySelector('.dashboard .card:nth-child(1) p').textContent = data.healthy;
+            document.querySelector('.dashboard .card:nth-child(2) p').textContent = data.unhealthy;
+            document.querySelector('.dashboard .card:nth-child(3) p').textContent = data.farmer;
+            document.querySelector('.dashboard .card:nth-child(4) p').textContent = data.farm;
+        } catch (error) {
+            console.error('Error fetching result counts:', error);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchResultCounts);
     </script>
+
+    
 </body>
 </html>

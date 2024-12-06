@@ -50,17 +50,19 @@
         }
 
         .image-container {
-            min-width: 40%; 
+            max-width: 70%;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 10px;
+            box-sizing: border-box;
         }
 
         .disease-info img {
             border: 2px solid #ddd;
             border-radius: 10px;
             max-width: 100%;
-            max-height: 250px;
+            height: 250px;
         }
 
         .disease-info div {
@@ -74,6 +76,24 @@
             font-size: 1rem;
             color: #333;
         }
+
+        /* Responsive layout for small screens */
+    @media (max-width: 768px) {
+    .disease-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .disease-info img {
+        max-height: 200px; /* Adjust for smaller screens */
+        margin: 15px 0;
+    }
+    
+    .disease-info div {
+        padding: 10px;
+    }
+}
 
         .disease-info .disease-title {
             font-weight: bold;
@@ -155,9 +175,9 @@
             <div class="disease-info">
                 <div>
                     <p class="disease-title"><strong>Description:</strong></p>
-                    <p class="disease-description">{{ item.description }}</p>
+                    <p class="disease-description">{{ item.longDescription }}</p>
                     <p class="disease-title"><strong>Cure:</strong></p>
-                    <p class="disease-cure">{{ item.cure }}</p>
+                    <p class="disease-cure">{{ item.longCure }}</p>
                 </div>
                 <div class="image-container">
                     <img src="{{ url_for('serve_static', path=item.image) }}" class="detail-img" alt="{{ item.name }}">

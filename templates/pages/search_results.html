@@ -20,7 +20,7 @@
         }
 
         .body {
-            width: 90%;
+            width: 60%;
             margin: 1rem auto;
             background-color: #FFF;
             border-radius: 1rem;
@@ -37,7 +37,7 @@
             max-width: 1200px;
             padding: 1rem;
             border-radius: 8px;
-            background-color: white;
+            background-color: #2f4f4f;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             margin: 0 auto;
         }
@@ -97,7 +97,11 @@
             justify-content: center;
             gap: 1rem;
         }
-
+         .reverse {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+}
         @media screen and (max-width: 768px) {
             .title, .nav {
                 display: block;
@@ -156,7 +160,7 @@
             <div class="content-title">
                 <h1>Search Results for "{{ query }}"</h1>
             </div>
-            <hr>
+       
             <div class="content">
                 {% if not diseases and not pests %}
                     <p>There are no coffee plant diseases/pests related to "{{ query }}".</p>
@@ -173,6 +177,7 @@
                             {% endfor %}
                         </div>
                     </div>
+                    <br>
                     <hr>
                     {% endif %}
                     {% if pests %}
@@ -187,6 +192,7 @@
                             {% endfor %}
                         </div>
                     </div>
+                    <br>
                     <hr>
                     {% endif %}
                 {% endif %}

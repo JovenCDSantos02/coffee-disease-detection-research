@@ -19,6 +19,7 @@ with open(os.path.join(app.root_path, 'data/diseases.json')) as f:
 
 diseases = [item for item in diseases_info if item['name'] not in ['Healthy'] and item['name'] in ['Anthracnose', 'Brown Eye', 'Leaf Rust']]
 pests = [item for item in diseases_info if item['name'] not in ['Healthy'] and item['name'] in ['Leaf Scale', 'Mealy Bug', 'Twig Borer']]
+result_record_path = os.path.join(app.root_path, 'data/resultRecord.json')
 
 def load_accounts():
     with open(os.path.join(app.root_path, 'data/account.json')) as f:
@@ -76,10 +77,36 @@ def resource():
 @app.route('/search', methods=['GET'])
 def search():
     query = request.args.get('query', '').lower()
-    filtered_diseases = [item for item in diseases_info if (query in item['name'].lower() or query in item['description'].lower()) and item['name'] in ['Anthracnose', 'Brown Eye', 'Leaf Rust']]
-    filtered_pests = [item for item in diseases_info if (query in item['name'].lower() or query in item['description'].lower()) and item['name'] in ['Leaf Scale', 'Mealy Bug', 'Twig Borer']]
+    
+    def matches_query(item):
+        fields_to_search = [
+            item.get('name', '').lower(),
+            item.get('description', '').lower(),
+            item.get('longDescription', '').lower(),
+            item.get('cure', '').lower(),
+            item.get('longCure', '').lower()
+        ]
+        return any(query in field for field in fields_to_search)
+    
+    filtered_diseases = [
+        item for item in diseases_info 
+        if matches_query(item) and item['name'] in ['Anthracnose', 'Brown Eye', 'Leaf Rust']
+    ]
+    
+    filtered_pests = [
+        item for item in diseases_info 
+        if matches_query(item) and item['name'] in ['Leaf Scale', 'Mealy Bug', 'Twig Borer']
+    ]
+    
     no_results = len(filtered_diseases) == 0 and len(filtered_pests) == 0
-    return render_template('pages/search_results.html', diseases=filtered_diseases, pests=filtered_pests, no_results=no_results, query=query)
+    
+    return render_template(
+        'pages/search_results.html',
+        diseases=filtered_diseases,
+        pests=filtered_pests,
+        no_results=no_results,
+        query=query
+    )
 
 @app.route('/detail/<name>')
 def detail(name):
@@ -257,6 +284,29 @@ def get_history():
         app.logger.error(f"Error in /history: {e}")
         return jsonify({"error": "An error occurred while fetching history."}), 500
 
+@app.route('/count_results', methods=['GET'])
+def count_results():
+    try:
+        accounts = load_accounts()
+        total_farmers = sum(1 for acc in accounts if acc['position'] == 'Farmer')
+        total_farms = len(set(acc['farm'] for acc in accounts))
 
+        with open(result_record_path, 'r') as f:
+            result_records = json.load(f)
+        
+        healthy_count = sum(1 for record in result_records if record['results'] == 'Healthy')
+        unhealthy_count = len(result_records) - healthy_count
+
+        result_counts = {
+            'healthy': healthy_count,
+            'unhealthy': unhealthy_count,
+            'farm': total_farms,
+            'farmer': total_farmers
+        }
+
+        return jsonify(result_counts)
+    except Exception as e:
+        return jsonify({'error': 'Failed to fetch results', 'details': str(e)}), 500
+    
 if __name__ == '__main__':
     app.run(debug=True)

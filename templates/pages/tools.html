@@ -40,7 +40,7 @@ button[type="submit"]:hover {
 }
 
 .body {
-    width: 90%;
+    width: 100%;
     margin: 1rem auto 0;
     background-color: #FFF;
     border-radius: 1rem;
@@ -112,13 +112,17 @@ button[type="submit"]:hover {
     display: flex;
     gap: 20px;
     align-items: flex-start;
+    justify-content: center;
+    text-align: center;
 }
 
 .disease-info img {
     border: 2px solid #ddd;
+    max-width: 150px;
     border-radius: 10px;
-    max-width: 250px;
-    max-height: 250px;
+    height: auto;
+    margin: 0 auto;
+    display: block;
 }
 
 .disease-info div {
@@ -142,7 +146,8 @@ button[type="submit"]:hover {
 
 .disease-info p#disease-description, 
 .disease-info p#disease-cure {
-    margin-left: 20px;
+    margin-left: 5%;
+    justify-content: center;
 }
 
 .disease-info p#disease-cure ul {
@@ -167,6 +172,34 @@ a:hover, form > button:hover, #retry-button:hover, #more-info-button:hover {
     color: black;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
+
+/* Responsive Styling */
+@media (max-width: 480px) {
+    .disease-info {
+        flex-direction: column; /* Stack elements vertically */
+        gap: 15px;
+    }
+
+    .disease-info img {
+        max-width: 80px; /* Allow images to scale */
+        margin: 0 auto;
+        height: auto;
+    }
+
+    .disease-info p {
+        font-size: 0.9rem; /* Slightly smaller text for smaller screens */
+    }
+
+    .disease-info p#disease-name {
+        font-size: 1.1rem; /* Adjusted size for headers */
+    }
+
+    .disease-info p#disease-description,
+    .disease-info p#disease-cure {
+        margin-left: 0; /* Remove left margin for better alignment */
+    }
+}
+
 
 form > button, #retry-button, #more-info-button {
     border-radius: 5px;
@@ -247,21 +280,26 @@ form > button, #retry-button, #more-info-button {
 }
 
 #history-section {
-                display: none;
-                margin-top: 20px;
-                position: absolute;
+    display: none;
+    margin-top: 20px;
+    position: absolute;
     bottom: 100px;
     left: 20px;
-    width: 30%;
+    width: 50%;
+    max-height: 300px;
+    overflow-y:auto ;
     border-radius: 1rem;
     padding: 1rem;
     background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
             }
 
-            .history-table {
+.history-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    table-layout: fixed;
     
 }
 
@@ -269,6 +307,16 @@ form > button, #retry-button, #more-info-button {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: left;
+    word-wrap: break-word;
+}
+
+@media screen and (max-width: 768px){
+
+#history-section{
+    width: 90%;
+    left: 5%;
+
+    }
 }
 
 .history-table th {
@@ -281,27 +329,26 @@ form > button, #retry-button, #more-info-button {
     background-color: #8FBC8F;
 }
 
+.toggle-history-btn {
+    padding: 0.5rem 1rem;
+    background-color: #2F4F4F;
+    color: #FFF;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    border: none;
+    margin: 10px 0;
+    padding: 1rem;
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
 
-            .toggle-history-btn {
-                padding: 0.5rem 1rem;
-                background-color: #2F4F4F;
-                color: #FFF;
-                font-weight: 700;
-                text-transform: uppercase;
-                border-radius: 0.25rem;
-                cursor: pointer;
-                border: none;
-                margin: 10px 0;
-                padding: 1rem;
-                position: absolute;
-                bottom: 20px;
-                left: 20px;
+    }
 
-            }
-
-            .toggle-history-btn:hover {
-                background-color: #8FBC8F;
-            }
+.toggle-history-btn:hover {
+    background-color: #8FBC8F;
+    }
     </style>
     
 </head>
@@ -346,9 +393,9 @@ form > button, #retry-button, #more-info-button {
             </div>
 
             <div class="result" id="result" style="display: none;">
-                <h2>Diagnosis Result:</h2>
+                <h2 style="margin-left: 20%;">Diagnosis Result:</h2>
                 <div class="disease-info">
-                    <img id="disease-image" src="#" alt="Disease Image" style="max-width: 300px; border-radius: 10px; border: 1px solid #ccc;">
+                    <img id="disease-image" src="#" alt="Disease Image" style="max-width: 250px; border-radius: 10px; border: 1px solid #ccc;">
                     <div>
                         <p id="disease-name"></p>
                         <p id="disease-description"></p>
@@ -550,6 +597,182 @@ function fetchHistory() {
             const diseaseName = $('#disease-name').text().replace('Disease: ', '');
             window.location.href = `/detail/${encodeURIComponent(diseaseName)}`;
         }
+
+
+        function uploadImage() {
+    const formData = new FormData();
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Please select a file!");
+        return;
+    }
+
+    formData.append('file', file);
+    document.getElementById('loading-spinner').style.display = 'block';
+    document.getElementById('submit-button').disabled = true;
+
+    $.ajax({
+        url: '/predict',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            document.getElementById('loading-spinner').style.display = 'none';
+            document.getElementById('submit-button').disabled = false;
+
+            if (response.error) {
+                alert(response.error);
+            } else {
+                $('#upload-form').hide();
+                $('#result').show();
+
+                const formatText = (text) => text.replace(/\n/g, '<br>');
+
+                $('#disease-name').text('Disease: ' + response.disease_name);
+                $('#disease-description').html('Description: ' + formatText(response.disease_description));
+                $('#disease-cure').html('Cure: ' + formatText(response.disease_cure));
+                $('#disease-image').attr('src', response.disease_image);
+
+                if (response.disease_name !== 'Healthy') {
+                    $('#more-info-button').show();
+                    $('#more-info-button').attr('onclick', `window.location.href='/detail/${encodeURIComponent(response.disease_name)}'`);
+                } else {
+                    $('#more-info-button').hide();
+                }
+            }
+        },
+        error: function(xhr, status, error) {
+            document.getElementById('loading-spinner').style.display = 'none';
+            document.getElementById('submit-button').disabled = false;
+            alert('An error occurred: ' + error);
+        }
+    });
+}
+
+
+    $(document).ready(() => {
+        fetchHistory(); 
+    });
+
+    function fetchHistory() {
+        $.ajax({
+            url: '/history',
+            type: 'GET',
+        success: function (response) {
+            const historySection = $('#history-section');
+            const historyContent = $('#history-content');
+
+            if (response.error) {
+                historyContent.html('<p>' + response.error + '</p>');
+                historySection.show();
+                historySection.hide();
+                return;
+            }
+
+            if (response.length === 0) {
+                historyContent.html('<tr><td colspan="2">No history records found.</td></tr>');
+            } else {
+                const historyRows = response.map(record => `
+                    <tr>
+                        <td>${record.date}</td>
+                        <td>${record.results}</td>
+                    </tr>
+                `).join('');
+                historyContent.html(historyRows);
+            }
+
+            historySection.show();
+            historySection.hide();
+        },
+        error: function (xhr, status, error) {
+            console.error('Error fetching history:', error);
+        }
+    });
+}
+
+function uploadImage() {
+    const formData = new FormData();
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Please select a file!");
+        return;
+    }
+
+    formData.append('file', file);
+    document.getElementById('loading-spinner').style.display = 'block';
+    document.getElementById('submit-button').disabled = true;
+
+    $.ajax({
+        url: '/predict',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            document.getElementById('loading-spinner').style.display = 'none';
+            document.getElementById('submit-button').disabled = false;
+
+            if (response.error) {
+                alert(response.error);
+            } else {
+                $('#upload-form').hide();
+                $('#result').show();
+
+                // Format the disease description and cure
+                const formatText = (text) => text.replace(/\n/g, '<br>');
+
+                // Update the result section with the prediction data
+                $('#disease-name').text('Disease: ' + response.disease_name);
+                $('#disease-description').html('Description: ' + formatText(response.disease_description));
+                $('#disease-cure').html('Cure: ' + formatText(response.disease_cure));
+                $('#disease-image').attr('src', response.disease_image);
+
+                // Automatically add the diagnosis result to the history
+                addToHistory(response);
+
+                if (response.disease_name !== 'Healthy') {
+                    $('#more-info-button').show();
+                    $('#more-info-button').attr('onclick', `window.location.href='/detail/${encodeURIComponent(response.disease_name)}'`);
+                } else {
+                    $('#more-info-button').hide();
+                }
+            }
+        },
+        error: function(xhr, status, error) {
+            document.getElementById('loading-spinner').style.display = 'none';
+            document.getElementById('submit-button').disabled = false;
+            alert('An error occurred: ' + error);
+        }
+    });
+}
+
+function addToHistory(diagnosis) {
+    const historyContent = $('#history-content');
+    const now = new Date().toLocaleString();
+    const newRow = `
+        <tr>
+            <td>${now}</td>
+            <td>${diagnosis.disease_name}</td>
+        </tr>
+    `;
+    historyContent.prepend(newRow);  // Adds the new record at the top of the history table
+}
+
+function retry() {
+    $('#result').hide();
+    $('#upload-form').show();
+    $('#preview').attr('src', '').hide();
+    $('#drop-zone').show();
+}
+
+function moreInfo() {
+    const diseaseName = $('#disease-name').text().replace('Disease: ', '');
+    window.location.href = `/detail/${encodeURIComponent(diseaseName)}`;
+}
+
     </script>
 </body>
 </html>
