@@ -1,5 +1,5 @@
-Flask==2.3.2
-tensorflow==2.13.0
-numpy==1.24.4
 Pillow==9.5.0
+Flask==2.3.2
+tensorflow>=2.10.0,<2.14.0
+numpy>=1.22,<1.24.4
 gdown==4.6.0
