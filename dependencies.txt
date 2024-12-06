@@ -1,3 +1,0 @@
-pip install Flask tensorflow numpy Pillow
-
-ML model: https://drive.google.com/file/d/1ImDY6s5Cjux5YOgodQcDmW8U3mGbXgcq/view?usp=sharing
