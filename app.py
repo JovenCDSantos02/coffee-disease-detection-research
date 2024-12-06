@@ -12,7 +12,10 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = 'coffee_diseases_detection'
 app.permanent_session_lifetime = timedelta(minutes=600)
 
-model = load_model('coffee_plant_disease_model.keras')
+model_path = '/var/data/coffee_plant_disease_model.keras'
+if not os.path.exists(model_path):
+    os.system(f"wget -O {model_path} https://your-cloud-storage-link/model.keras")
+model = load_model(model_path)
 
 with open(os.path.join(app.root_path, 'data/diseases.json')) as f:
     diseases_info = json.load(f)
