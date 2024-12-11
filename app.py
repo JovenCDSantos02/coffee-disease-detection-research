@@ -13,14 +13,26 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = os.environ.get('SECRET_KEY', 'default_secret_key')
 app.permanent_session_lifetime = timedelta(minutes=600)
 
-tflite_model_path = os.path.join('var', 'data', 'coffee_plant_disease_model.tflite')
+interpreter = None
+input_details = None
+output_details = None
 
+def load_model():
+    global interpreter, input_details, output_details
+    if interpreter is None:
+        print("Loading TensorFlow Lite model...")
+        interpreter = tflite.Interpreter(model_path=tflite_model_path)
+        interpreter.allocate_tensors()
+        input_details = interpreter.get_input_details()
+        output_details = interpreter.get_output_details()
+        print("Model loaded.")
+
+tflite_model_path = os.path.join('var', 'data', 'coffee_plant_disease_model.tflite')
 os.makedirs(os.path.dirname(tflite_model_path), exist_ok=True)
 
 if not os.path.exists(tflite_model_path):
     google_drive_file_id = '1XGk0WxCrLXtCZFN-GSd0FIqYNeKtBxRV'
     download_url = f'https://drive.google.com/uc?export=download&id={google_drive_file_id}'
-    
     try:
         print(f"File not found at {tflite_model_path}. Downloading...")
         gdown.download(download_url, tflite_model_path, quiet=False)
@@ -29,11 +41,6 @@ if not os.path.exists(tflite_model_path):
         print(f"Failed to download the file: {e}")
 else:
     print(f"File already exists at {tflite_model_path}")
-
-interpreter = tflite.Interpreter(model_path=tflite_model_path)
-interpreter.allocate_tensors()
-input_details = interpreter.get_input_details()
-output_details = interpreter.get_output_details()
 
 with open(os.path.join(app.root_path, 'data/diseases.json')) as f:
     diseases_info = json.load(f)
@@ -151,46 +158,53 @@ def predict():
     file_path = os.path.join('uploads', file.filename)
     file.save(file_path)
 
-    img = Image.open(file_path).resize((299, 299))
-    img_array = np.array(img) / 255.0
-    img_array = np.expand_dims(img_array, axis=0).astype(np.float32)
+    try:
+        load_model()
 
-    interpreter.set_tensor(input_details[0]['index'], img_array)
-    interpreter.invoke()
-    predictions = interpreter.get_tensor(output_details[0]['index'])
-    predicted_class = np.argmax(predictions, axis=1)[0]
+        img = Image.open(file_path).resize((299, 299)).convert('RGB')
+        img_array = np.array(img) / 255.0
+        img_array = np.expand_dims(img_array, axis=0).astype(np.float32)
 
-    classes = ['Anthracnose', 'Brown Eye', 'Healthy', 'Leaf Rust', 'Leaf Scale', 'Mealy Bug', 'Twig Borer']
-    predicted_disease_name = classes[predicted_class]
+        interpreter.set_tensor(input_details[0]['index'], img_array)
+        interpreter.invoke()
+        predictions = interpreter.get_tensor(output_details[0]['index'])
+        predicted_class = np.argmax(predictions, axis=1)[0]
 
-    disease_info = next((item for item in diseases_info if item['name'] == predicted_disease_name), None)
-    if disease_info:
-        response = {
-            'disease_name': disease_info['name'],
-            'disease_description': disease_info['description'],
-            'disease_cure': disease_info['cure'],
-            'disease_image': disease_info['image']
-        }
-        record = {
-            "date": str(datetime.date.today()),
-            "account-id": session['account_id'],
-            "results": predicted_disease_name,
-            "farm": session.get('farm', 'Unknown')
-        }
-        if os.path.exists(result_record_path):
-            with open(result_record_path, 'r+') as f:
-                records = json.load(f)
-                records.append(record)
-                f.seek(0)
-                json.dump(records, f, indent=4)
+        classes = ['Anthracnose', 'Brown Eye', 'Healthy', 'Leaf Rust', 'Leaf Scale', 'Mealy Bug', 'Twig Borer']
+        predicted_disease_name = classes[predicted_class]
+
+        disease_info = next((item for item in diseases_info if item['name'] == predicted_disease_name), None)
+        if disease_info:
+            response = {
+                'disease_name': disease_info['name'],
+                'disease_description': disease_info['description'],
+                'disease_cure': disease_info['cure'],
+                'disease_image': disease_info['image']
+            }
+            record = {
+                "date": str(datetime.date.today()),
+                "account-id": session['account_id'],
+                "results": predicted_disease_name,
+                "farm": session.get('farm', 'Unknown')
+            }
+            if os.path.exists(result_record_path):
+                with open(result_record_path, 'r+') as f:
+                    records = json.load(f)
+                    records.append(record)
+                    f.seek(0)
+                    json.dump(records, f, indent=4)
+            else:
+                with open(result_record_path, 'w') as f:
+                    json.dump([record], f, indent=4)
         else:
-            with open(result_record_path, 'w') as f:
-                json.dump([record], f, indent=4)
-    else:
-        response = {'error': 'Disease not found in the database.'}
+            response = {'error': 'Disease not found in the database.'}
 
-    os.remove(file_path)
-    return jsonify(response)
+        return jsonify(response)
+    except Exception as e:
+        return jsonify({'error': 'Prediction failed', 'details': str(e)}), 500
+    finally:
+        os.remove(file_path) 
+        gc.collect()
 
 @app.route('/get-records', methods=['GET'])
 def get_records():
