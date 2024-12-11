@@ -13,7 +13,7 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = os.environ.get('SECRET_KEY', 'default_secret_key')
 app.permanent_session_lifetime = timedelta(minutes=600)
 
-tflite_model_path = '/var/data/coffee_plant_disease_model.tflite'
+tflite_model_path = 'var\data\coffee_plant_disease_model.tflite'
 if not os.path.exists(tflite_model_path):
     google_drive_file_id = '1XGk0WxCrLXtCZFN-GSd0FIqYNeKtBxRV'
     download_url = f'https://drive.google.com/uc?export=download&id={google_drive_file_id}'
