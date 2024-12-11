@@ -10,15 +10,15 @@ import gdown
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
-app.secret_key = 'coffee_diseases_detection'
+app.secret_key = os.environ.get('SECRET_KEY', 'default_secret_key')
 app.permanent_session_lifetime = timedelta(minutes=600)
 
-model_path = './coffee_plant_disease_model.keras'
+model_path = '/var/data/coffee_plant_disease_model.keras'
 if not os.path.exists(model_path):
     google_drive_file_id = '1ImDY6s5Cjux5YOgodQcDmW8U3mGbXgcq'
     download_url = f'https://drive.google.com/uc?export=download&id={google_drive_file_id}'
     gdown.download(download_url, model_path, quiet=False)
-model = load_model(model_path)
+
 
 with open(os.path.join(app.root_path, 'data/diseases.json')) as f:
     diseases_info = json.load(f)
@@ -315,4 +315,6 @@ def count_results():
         return jsonify({'error': 'Failed to fetch results', 'details': str(e)}), 500
     
 if __name__ == '__main__':
-    app.run(debug=True)
+    import os
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
