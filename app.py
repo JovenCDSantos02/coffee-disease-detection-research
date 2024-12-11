@@ -35,8 +35,9 @@ def ensure_model_exists():
             print(f"File already exists at {tflite_model_path} (post-lock). Skipping download.")
             return
 
-        google_drive_file_id = '1rNwV5MSbjBu12DJjy_LYQ-u9CGR511e3'
+        google_drive_file_id = '1tDXXzf7LR8STYl23iwRuQtcJXPiNP7i0'
         download_url = f'https://drive.google.com/uc?export=download&id={google_drive_file_id}'
+
         try:
             print(f"File not found at {tflite_model_path}. Downloading...")
             gdown.download(download_url, tflite_model_path, quiet=False)
