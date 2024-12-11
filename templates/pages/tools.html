@@ -528,7 +528,6 @@ form > button, #retry-button, #more-info-button {
             reader.readAsDataURL(file);
         }
     
-        // Upload the image for prediction
         function uploadImage() {
             const file = fileInput.files[0];
             if (!file) {
@@ -585,7 +584,6 @@ form > button, #retry-button, #more-info-button {
             });
         }
     
-        // Resize the image for consistent input size
         function resizeImage(file, maxWidth, maxHeight, callback) {
             const reader = new FileReader();
             reader.onload = function (e) {

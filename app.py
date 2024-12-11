@@ -170,8 +170,18 @@ def predict():
         flash('You need to log in first.', 'error')
         return redirect(url_for('login'))
 
+    if 'file' not in request.files or request.files['file'].filename == '':
+        return jsonify({'error': 'No file uploaded or invalid file.'}), 400
+
     file = request.files['file']
     file_path = os.path.join('uploads', file.filename)
+    try:
+        os.makedirs('uploads', exist_ok=True)
+        file.save(file_path)
+    except Exception as e:
+        app.logger.error(f"File save error: {e}")
+        return jsonify({'error': 'Failed to save the uploaded file.'}), 500
+
     file.save(file_path)
 
     try:
@@ -181,9 +191,14 @@ def predict():
         img_array = np.array(img) / 255.0
         img_array = np.expand_dims(img_array, axis=0).astype(np.float32)
 
-        interpreter.set_tensor(input_details[0]['index'], img_array)
-        interpreter.invoke()
-        predictions = interpreter.get_tensor(output_details[0]['index'])
+        try:
+            interpreter.set_tensor(input_details[0]['index'], img_array)
+            interpreter.invoke()
+            predictions = interpreter.get_tensor(output_details[0]['index'])
+        except Exception as e:
+            app.logger.error(f"Prediction error: {e}")
+            return jsonify({'error': 'Prediction failed.'}), 500
+
         predicted_class = np.argmax(predictions, axis=1)[0]
 
         classes = ['Anthracnose', 'Brown Eye', 'Healthy', 'Leaf Rust', 'Leaf Scale', 'Mealy Bug', 'Twig Borer']
@@ -219,7 +234,11 @@ def predict():
     except Exception as e:
         return jsonify({'error': 'Prediction failed', 'details': str(e)}), 500
     finally:
-        os.remove(file_path) 
+        try:
+            os.remove(file_path)
+        except Exception as e:
+            app.logger.warning(f"Failed to delete file: {e}")
+
         gc.collect()
 
 @app.route('/get-records', methods=['GET'])
