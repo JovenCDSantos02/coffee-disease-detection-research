@@ -7,6 +7,7 @@ import gdown
 import tensorflow.lite as tflite
 from PIL import Image
 from datetime import timedelta
+import gc
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
