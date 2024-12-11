@@ -13,11 +13,22 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = os.environ.get('SECRET_KEY', 'default_secret_key')
 app.permanent_session_lifetime = timedelta(minutes=600)
 
-tflite_model_path = 'var\data\coffee_plant_disease_model.tflite'
+tflite_model_path = os.path.join('var', 'data', 'coffee_plant_disease_model.tflite')
+
+os.makedirs(os.path.dirname(tflite_model_path), exist_ok=True)
+
 if not os.path.exists(tflite_model_path):
     google_drive_file_id = '1XGk0WxCrLXtCZFN-GSd0FIqYNeKtBxRV'
     download_url = f'https://drive.google.com/uc?export=download&id={google_drive_file_id}'
-    gdown.download(download_url, tflite_model_path, quiet=False)
+    
+    try:
+        print(f"File not found at {tflite_model_path}. Downloading...")
+        gdown.download(download_url, tflite_model_path, quiet=False)
+        print(f"File downloaded to {tflite_model_path}")
+    except Exception as e:
+        print(f"Failed to download the file: {e}")
+else:
+    print(f"File already exists at {tflite_model_path}")
 
 interpreter = tflite.Interpreter(model_path=tflite_model_path)
 interpreter.allocate_tensors()
