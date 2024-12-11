@@ -35,7 +35,7 @@ def ensure_model_exists():
             print(f"File already exists at {tflite_model_path} (post-lock). Skipping download.")
             return
 
-        google_drive_file_id = '1XGk0WxCrLXtCZFN-GSd0FIqYNeKtBxRV'
+        google_drive_file_id = '1rNwV5MSbjBu12DJjy_LYQ-u9CGR511e3'
         download_url = f'https://drive.google.com/uc?export=download&id={google_drive_file_id}'
         try:
             print(f"File not found at {tflite_model_path}. Downloading...")
@@ -175,14 +175,14 @@ def predict():
 
     file = request.files['file']
     file_path = os.path.join('uploads', file.filename)
+
     try:
         os.makedirs('uploads', exist_ok=True)
         file.save(file_path)
+        app.logger.info(f"File saved successfully at {file_path}")
     except Exception as e:
         app.logger.error(f"File save error: {e}")
         return jsonify({'error': 'Failed to save the uploaded file.'}), 500
-
-    file.save(file_path)
 
     try:
         load_model()
@@ -196,11 +196,10 @@ def predict():
             interpreter.invoke()
             predictions = interpreter.get_tensor(output_details[0]['index'])
         except Exception as e:
-            app.logger.error(f"Prediction error: {e}")
-            return jsonify({'error': 'Prediction failed.'}), 500
+            app.logger.error(f"Model prediction error: {e}")
+            return jsonify({'error': 'Prediction failed during model inference.'}), 500
 
         predicted_class = np.argmax(predictions, axis=1)[0]
-
         classes = ['Anthracnose', 'Brown Eye', 'Healthy', 'Leaf Rust', 'Leaf Scale', 'Mealy Bug', 'Twig Borer']
         predicted_disease_name = classes[predicted_class]
 
@@ -218,28 +217,37 @@ def predict():
                 "results": predicted_disease_name,
                 "farm": session.get('farm', 'Unknown')
             }
-            if os.path.exists(result_record_path):
-                with open(result_record_path, 'r+') as f:
-                    records = json.load(f)
-                    records.append(record)
-                    f.seek(0)
-                    json.dump(records, f, indent=4)
-            else:
-                with open(result_record_path, 'w') as f:
-                    json.dump([record], f, indent=4)
+            try:
+                if os.path.exists(result_record_path):
+                    with open(result_record_path, 'r+') as f:
+                        records = json.load(f)
+                        records.append(record)
+                        f.seek(0)
+                        json.dump(records, f, indent=4)
+                else:
+                    with open(result_record_path, 'w') as f:
+                        json.dump([record], f, indent=4)
+                app.logger.info("Record saved successfully.")
+            except Exception as e:
+                app.logger.error(f"Error saving record: {e}")
+                return jsonify({'error': 'Failed to save the record.'}), 500
         else:
+            app.logger.warning("Disease not found in database.")
             response = {'error': 'Disease not found in the database.'}
 
         return jsonify(response)
     except Exception as e:
-        return jsonify({'error': 'Prediction failed', 'details': str(e)}), 500
+        app.logger.error(f"Unexpected error: {e}")
+        return jsonify({'error': 'Prediction process failed.', 'details': str(e)}), 500
     finally:
         try:
             os.remove(file_path)
+            app.logger.info(f"Temporary file {file_path} deleted successfully.")
         except Exception as e:
             app.logger.warning(f"Failed to delete file: {e}")
 
         gc.collect()
+
 
 @app.route('/get-records', methods=['GET'])
 def get_records():

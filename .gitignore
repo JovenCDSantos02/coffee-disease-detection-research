@@ -1,0 +1,7 @@
+# Ignore machine learning models
+*.tflite
+*.keras
+
+# Ignore specific Python scripts
+test.py
+convert.py

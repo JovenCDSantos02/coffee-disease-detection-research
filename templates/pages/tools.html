@@ -439,6 +439,7 @@ form > button, #retry-button, #more-info-button {
     
         // Fetch history on document ready
         $(document).ready(() => {
+            console.log("Document ready. Fetching history...");
             fetchHistory();
         });
     
@@ -456,10 +457,12 @@ form > button, #retry-button, #more-info-button {
     
         // Fetch diagnosis history
         function fetchHistory() {
+            console.log("Fetching diagnosis history...");
             $.ajax({
                 url: '/history',
                 type: 'GET',
                 success: function (response) {
+                    console.log("History fetched successfully:", response);
                     const historyContent = $('#history-content');
     
                     if (response.error) {
@@ -499,6 +502,7 @@ form > button, #retry-button, #more-info-button {
             e.preventDefault();
             dropZone.classList.remove('dragover');
             const files = e.dataTransfer.files;
+            console.log("Files dropped:", files);
             if (files.length > 0) {
                 fileInput.files = files;
                 previewImage(files[0]);
@@ -507,6 +511,7 @@ form > button, #retry-button, #more-info-button {
     
         fileInput.addEventListener('change', () => {
             const file = fileInput.files[0];
+            console.log("File selected:", file);
             if (file) {
                 const usePhoto = confirm("Do you want to use this photo?");
                 if (usePhoto) {
@@ -519,6 +524,7 @@ form > button, #retry-button, #more-info-button {
     
         // Preview the selected image
         function previewImage(file) {
+            console.log("Previewing image:", file);
             const reader = new FileReader();
             reader.onload = function (e) {
                 preview.src = e.target.result;
@@ -529,102 +535,151 @@ form > button, #retry-button, #more-info-button {
         }
     
         function uploadImage() {
-            const file = fileInput.files[0];
-            if (!file) {
-                alert("Please select a file!");
-                return;
-            }
-    
-            const maxWidth = 299;
-            const maxHeight = 299;
-    
-            resizeImage(file, maxWidth, maxHeight, function (resizedBlob) {
-                const formData = new FormData();
-                formData.append('file', resizedBlob, 'resized-image.jpg');
-    
-                document.getElementById('loading-spinner').style.display = 'block';
-                document.getElementById('submit-button').disabled = true;
-    
-                $.ajax({
-                    url: '/predict',
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function (response) {
-                        document.getElementById('loading-spinner').style.display = 'none';
-                        document.getElementById('submit-button').disabled = false;
-    
-                        if (response.error) {
-                            alert(response.error);
-                        } else {
-                            $('#upload-form').hide();
-                            $('#result').show();
-    
-                            const formatText = (text) => text.replace(/\n/g, '<br>');
-                            $('#disease-name').text(`Disease: ${response.disease_name}`);
-                            $('#disease-description').html(`Description: ${formatText(response.disease_description)}`);
-                            $('#disease-cure').html(`Cure: ${formatText(response.disease_cure)}`);
-                            $('#disease-image').attr('src', response.disease_image);
-    
-                            if (response.disease_name !== 'Healthy') {
-                                $('#more-info-button').show();
-                                $('#more-info-button').attr('onclick', `window.location.href='/detail/${encodeURIComponent(response.disease_name)}'`);
-                            } else {
-                                $('#more-info-button').hide();
-                            }
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        document.getElementById('loading-spinner').style.display = 'none';
-                        document.getElementById('submit-button').disabled = false;
-                        alert(`An error occurred: ${error}`);
-                    }
-                });
-            });
+    const file = fileInput.files[0];
+    if (!file) {
+        alert("Please select a file!");
+        return;
+    }
+
+    console.log("Uploading image:", file);
+    const maxWidth = 299;
+    const maxHeight = 299;
+
+    resizeImage(file, maxWidth, maxHeight, function (resizedBlob) {
+        if (!resizedBlob) {
+            console.error("Resizing failed, resizedBlob is null.");
+            alert("Image resizing failed. Please try again.");
+            return;
         }
+
+        console.log("Image resized successfully.");
+        const formData = new FormData();
+        formData.append('file', resizedBlob, 'resized-image.jpg');
+
+        document.getElementById('loading-spinner').style.display = 'block';
+        document.getElementById('submit-button').disabled = true;
+
+        $.ajax({
+            url: '/predict',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                console.log("Image uploaded successfully:", response);
+                document.getElementById('loading-spinner').style.display = 'none';
+                document.getElementById('submit-button').disabled = false;
+
+                if (response.error) {
+                    console.error("Server response error:", response.error);
+                    alert(response.error);
+                } else {
+                    $('#upload-form').hide();
+                    $('#result').show();
+
+                    const formatText = (text) => text.replace(/\n/g, '<br>');
+                    $('#disease-name').text(`Disease: ${response.disease_name}`);
+                    $('#disease-description').html(`Description: ${formatText(response.disease_description)}`);
+                    $('#disease-cure').html(`Cure: ${formatText(response.disease_cure)}`);
+                    $('#disease-image').attr('src', response.disease_image);
+
+                    if (response.disease_name !== 'Healthy') {
+                        $('#more-info-button').show();
+                        $('#more-info-button').attr('onclick', `window.location.href='/detail/${encodeURIComponent(response.disease_name)}'`);
+                    } else {
+                        $('#more-info-button').hide();
+                    }
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Error uploading image:", error);
+                console.error("Server response status:", status, "Response text:", xhr.responseText);
+                document.getElementById('loading-spinner').style.display = 'none';
+                document.getElementById('submit-button').disabled = false;
+                alert(`An error occurred while uploading the image: ${error}`);
+            }
+        });
+    });
+}
+
     
         function resizeImage(file, maxWidth, maxHeight, callback) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const img = new Image();
-                img.onload = function () {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
+    console.log("Resizing image:", file);
     
-                    if (width > height) {
-                        if (width > maxWidth) {
-                            height *= maxWidth / width;
-                            width = maxWidth;
-                        }
-                    } else {
-                        if (height > maxHeight) {
-                            width *= maxHeight / height;
-                            height = maxHeight;
-                        }
-                    }
+    const reader = new FileReader();
     
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
+    reader.onload = function (e) {
+        console.log("File loaded into FileReader:", e.target.result);
+        
+        const img = new Image();
+        
+        img.onload = function () {
+            console.log("Image loaded for resizing:");
+            console.log("Original dimensions:", { width: img.width, height: img.height });
+            
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+
+            // Calculate new dimensions
+            if (width > height) {
+                if (width > maxWidth) {
+                    height *= maxWidth / width;
+                    width = maxWidth;
+                }
+            } else {
+                if (height > maxHeight) {
+                    width *= maxHeight / height;
+                    height = maxHeight;
+                }
+            }
+            
+            console.log("Resized dimensions:", { width, height });
+
+            // Set canvas dimensions and draw the image
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            console.log("Image drawn on canvas.");
+
+            // Convert canvas to blob
+            canvas.toBlob((blob) => {
+                if (blob) {
+                    console.log("Image successfully resized and converted to blob.");
+                } else {
+                    console.error("Error: Failed to convert canvas to blob.");
+                }
+                callback(blob);
+            }, 'image/jpeg', 0.8);
+        };
+        
+        img.onerror = function (err) {
+            console.error("Error loading image:", err);
+        };
+        
+        img.src = e.target.result;
+    };
     
-                    canvas.toBlob(callback, 'image/jpeg', 0.8);
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
+    reader.onerror = function (err) {
+        console.error("Error reading file:", err);
+    };
+    
+    reader.readAsDataURL(file);
+}
+
     
         // Retry uploading
         function retry() {
+            console.log("Retrying upload...");
             $('#result').hide();
             $('#upload-form').show();
             $('#preview').attr('src', '').hide();
             $('#drop-zone').show();
         }
     </script>
+    
     
 </body>
 </html>

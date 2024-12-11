@@ -484,5 +484,11 @@
         "account-id": "user2",
         "results": "Leaf Rust",
         "farm": "San Juan"
+    },
+    {
+        "date": "2024-12-11",
+        "account-id": "user1",
+        "results": "Brown Eye",
+        "farm": "San Mateo"
     }
 ]
