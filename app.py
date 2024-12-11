@@ -1,24 +1,28 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for, flash, session
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.image import img_to_array, load_img
 import numpy as np
 import json
 import os
-from datetime import timedelta
 import datetime
 import gdown
+import tensorflow.lite as tflite
+from PIL import Image
+from datetime import timedelta
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
 app.secret_key = os.environ.get('SECRET_KEY', 'default_secret_key')
 app.permanent_session_lifetime = timedelta(minutes=600)
 
-model_path = '/var/data/coffee_plant_disease_model.keras'
-if not os.path.exists(model_path):
+tflite_model_path = '/var/data/coffee_plant_disease_model.tflite'
+if not os.path.exists(tflite_model_path):
     google_drive_file_id = '1ImDY6s5Cjux5YOgodQcDmW8U3mGbXgcq'
     download_url = f'https://drive.google.com/uc?export=download&id={google_drive_file_id}'
-    gdown.download(download_url, model_path, quiet=False)
+    gdown.download(download_url, tflite_model_path, quiet=False)
 
+interpreter = tflite.Interpreter(model_path=tflite_model_path)
+interpreter.allocate_tensors()
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
 
 with open(os.path.join(app.root_path, 'data/diseases.json')) as f:
     diseases_info = json.load(f)
@@ -136,20 +140,32 @@ def predict():
     file_path = os.path.join('uploads', file.filename)
     file.save(file_path)
 
-    img = load_img(file_path, target_size=(299, 299))
-    img_array = img_to_array(img) / 255.0
-    img_array = np.expand_dims(img_array, axis=0)
+    img = Image.open(file_path).resize((299, 299))
+    img_array = np.array(img) / 255.0
+    img_array = np.expand_dims(img_array, axis=0).astype(np.float32)
 
-    predictions = model.predict(img_array)
-    predicted_class = np.argmax(predictions, axis=1)
+    interpreter.set_tensor(input_details[0]['index'], img_array)
+    interpreter.invoke()
+    predictions = interpreter.get_tensor(output_details[0]['index'])
+    predicted_class = np.argmax(predictions, axis=1)[0]
+
     classes = ['Anthracnose', 'Brown Eye', 'Healthy', 'Leaf Rust', 'Leaf Scale', 'Mealy Bug', 'Twig Borer']
-    predicted_disease_name = classes[predicted_class[0]]
+    predicted_disease_name = classes[predicted_class]
 
-    disease_info = next((item for item in diseases_info if item["name"] == predicted_disease_name), None)
+    disease_info = next((item for item in diseases_info if item['name'] == predicted_disease_name), None)
     if disease_info:
-        response = {'disease_name': disease_info['name'], 'disease_description': disease_info['description'], 'disease_cure': disease_info['cure'], 'disease_image': disease_info['image']}
-        record = {"date": str(datetime.date.today()), "account-id": session['account_id'], "results": predicted_disease_name, "farm": session.get('farm', 'Unknown')}
-        result_record_path = os.path.join(app.root_path, 'data/resultRecord.json')
+        response = {
+            'disease_name': disease_info['name'],
+            'disease_description': disease_info['description'],
+            'disease_cure': disease_info['cure'],
+            'disease_image': disease_info['image']
+        }
+        record = {
+            "date": str(datetime.date.today()),
+            "account-id": session['account_id'],
+            "results": predicted_disease_name,
+            "farm": session.get('farm', 'Unknown')
+        }
         if os.path.exists(result_record_path):
             with open(result_record_path, 'r+') as f:
                 records = json.load(f)
