@@ -8,6 +8,7 @@ import tensorflow.lite as tflite
 from PIL import Image
 from datetime import timedelta
 import gc
+import threading
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
@@ -18,7 +19,34 @@ interpreter = None
 input_details = None
 output_details = None
 
+tflite_model_path = os.path.join('var', 'data', 'coffee_plant_disease_model.tflite')
+os.makedirs(os.path.dirname(tflite_model_path), exist_ok=True)
+
+download_lock = threading.Lock()
+
+def ensure_model_exists():
+    """Ensure the TFLite model is available locally, downloading it if necessary."""
+    if os.path.exists(tflite_model_path):
+        print(f"File already exists at {tflite_model_path}. Skipping download.")
+        return
+
+    with download_lock:
+        if os.path.exists(tflite_model_path):
+            print(f"File already exists at {tflite_model_path} (post-lock). Skipping download.")
+            return
+
+        google_drive_file_id = '1XGk0WxCrLXtCZFN-GSd0FIqYNeKtBxRV'
+        download_url = f'https://drive.google.com/uc?export=download&id={google_drive_file_id}'
+        try:
+            print(f"File not found at {tflite_model_path}. Downloading...")
+            gdown.download(download_url, tflite_model_path, quiet=False)
+            print(f"File downloaded to {tflite_model_path}")
+        except Exception as e:
+            print(f"Failed to download the file: {e}")
+            raise
+
 def load_model():
+    """Load the TensorFlow Lite model into memory."""
     global interpreter, input_details, output_details
     if interpreter is None:
         print("Loading TensorFlow Lite model...")
@@ -28,20 +56,7 @@ def load_model():
         output_details = interpreter.get_output_details()
         print("Model loaded.")
 
-tflite_model_path = os.path.join('var', 'data', 'coffee_plant_disease_model.tflite')
-os.makedirs(os.path.dirname(tflite_model_path), exist_ok=True)
-
-if not os.path.exists(tflite_model_path):
-    google_drive_file_id = '1XGk0WxCrLXtCZFN-GSd0FIqYNeKtBxRV'
-    download_url = f'https://drive.google.com/uc?export=download&id={google_drive_file_id}'
-    try:
-        print(f"File not found at {tflite_model_path}. Downloading...")
-        gdown.download(download_url, tflite_model_path, quiet=False)
-        print(f"File downloaded to {tflite_model_path}")
-    except Exception as e:
-        print(f"Failed to download the file: {e}")
-else:
-    print(f"File already exists at {tflite_model_path}")
+ensure_model_exists()
 
 with open(os.path.join(app.root_path, 'data/diseases.json')) as f:
     diseases_info = json.load(f)
