@@ -276,16 +276,7 @@ def predict():
                 "farm": session.get('farm', 'Unknown')
             }
             try:
-                if os.path.exists(result_record_path):
-                    with open(result_record_path, 'r+') as f:
-                        records = json.load(f)
-                        records.append(record)
-                        f.seek(0)
-                        json.dump(records, f, indent=4)
-                else:
-                    with open(result_record_path, 'w') as f:
-                        json.dump([record], f, indent=4)
-                app.logger.info("Record saved successfully.")
+                save_result_records(record)
             except Exception as e:
                 app.logger.error(f"Error saving record: {e}")
                 return jsonify({'error': 'Failed to save the record.'}), 500
