@@ -9,6 +9,71 @@ from PIL import Image
 from datetime import timedelta
 import gc
 import threading
+import gdown
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
+from google.oauth2 import service_account
+import io
+
+ACCOUNT_JSON_FILE_ID = '1uYdQhbuZxTRLBAn8GrAB6OKV8tUdpJow'
+RESULT_RECORD_JSON_FILE_ID = '1wxxQWr28eKAGqECGpeBxJKvTxgzFhO-r'
+SERVICE_ACCOUNT_FILE_ID = '1Ym9P1C7Gax2LXFdj5yohIVT-SZ8xp_Qu'
+
+SCOPES = ['https://www.googleapis.com/auth/drive']
+SERVICE_ACCOUNT_FILE = 'data/well.json'
+
+def download_service_account_file():
+    """Download the service account JSON file using gdown."""
+    gdown.download(f'https://drive.google.com/uc?id={SERVICE_ACCOUNT_FILE_ID}', SERVICE_ACCOUNT_FILE, quiet=False)
+
+def initialize_drive_service():
+    """Initialize Google Drive service using the downloaded service account credentials."""
+    download_service_account_file() 
+    credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+    drive_service = build('drive', 'v3', credentials=credentials)
+    return drive_service
+
+def download_file(file_id, local_path):
+    """Download a file from Google Drive to a local path."""
+    request = drive_service.files().get_media(fileId=file_id)
+    fh = io.FileIO(local_path, 'wb')
+    downloader = MediaIoBaseDownload(fh, request)
+
+    done = False
+    while not done:
+        status, done = downloader.next_chunk()
+        print(f"Download progress: {int(status.progress() * 100)}%")
+
+def upload_file(file_id, local_path):
+    """Upload and overwrite a file in Google Drive."""
+    media = MediaFileUpload(local_path, mimetype='application/json')
+    drive_service.files().update(fileId=file_id, media_body=media).execute()
+
+def load_accounts():
+    """Load accounts from Google Drive."""
+    download_file(ACCOUNT_JSON_FILE_ID, 'data/account.json')
+    with open('data/account.json') as f:
+        return json.load(f)['accounts']
+
+def save_accounts(accounts):
+    """Save accounts to Google Drive."""
+    with open('data/account.json', 'w') as f:
+        json.dump({'accounts': accounts}, f, indent=4)
+    upload_file(ACCOUNT_JSON_FILE_ID, 'data/account.json')
+
+def load_result_records():
+    """Load result records from Google Drive."""
+    download_file(RESULT_RECORD_JSON_FILE_ID, 'data/resultRecord.json')
+    with open('data/resultRecord.json') as f:
+        return json.load(f)
+
+def save_result_records(records):
+    """Save result records to Google Drive."""
+    with open('data/resultRecord.json', 'w') as f:
+        json.dump(records, f, indent=4)
+    upload_file(RESULT_RECORD_JSON_FILE_ID, 'data/resultRecord.json')
+
+drive_service = initialize_drive_service()
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
@@ -65,14 +130,6 @@ with open(os.path.join(app.root_path, 'data/diseases.json')) as f:
 diseases = [item for item in diseases_info if item['name'] not in ['Healthy'] and item['name'] in ['Anthracnose', 'Brown Eye', 'Leaf Rust']]
 pests = [item for item in diseases_info if item['name'] not in ['Healthy'] and item['name'] in ['Leaf Scale', 'Mealy Bug', 'Twig Borer']]
 result_record_path = os.path.join(app.root_path, 'data/resultRecord.json')
-
-def load_accounts():
-    with open(os.path.join(app.root_path, 'data/account.json')) as f:
-        return json.load(f)['accounts']
-
-def save_accounts(accounts):
-    with open(os.path.join(app.root_path, 'data/account.json'), 'w') as f:
-        json.dump({'accounts': accounts}, f, indent=4)
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
