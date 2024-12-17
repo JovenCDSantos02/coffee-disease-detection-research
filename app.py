@@ -300,15 +300,11 @@ def predict():
 
 @app.route('/get-records', methods=['GET'])
 def get_records():
-    if 'account_id' not in session:
-        flash('You need to log in first.', 'error')
-        return redirect(url_for('login'))
-
-    result_file_path = os.path.join(app.root_path, 'data/resultRecord.json')
-    with open(result_file_path) as f:
-        result_records = json.load(f)
-
-    return jsonify(result_records)
+    try:
+        records = load_result_records()
+        return jsonify(records)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/recordedResults.html')
 def recorded_results():
@@ -316,9 +312,7 @@ def recorded_results():
         flash('You need to log in first.', 'error')
         return redirect(url_for('login'))
 
-    result_file_path = os.path.join(app.root_path, 'data/resultRecord.json')
-    with open(result_file_path) as f:
-        result_records = json.load(f)
+    result_records = load_result_records()
 
     farms = list(set([record['farm'] for record in result_records]))
     month_years = list(set([record['date'][:7] for record in result_records]))
@@ -407,9 +401,7 @@ def get_history():
         return jsonify({"error": "User not logged in"}), 401
 
     try:
-        result_record_path = os.path.join(app.root_path, 'data/resultRecord.json')
-        with open(result_record_path, 'r') as file:
-            data = json.load(file)
+        data = load_result_records()
 
         user_history = [record for record in data if record['account-id'] == account_id]
         sorted_history = sorted(
@@ -430,8 +422,7 @@ def count_results():
         total_farmers = sum(1 for acc in accounts if acc['position'] == 'Farmer')
         total_farms = len(set(acc['farm'] for acc in accounts))
 
-        with open(result_record_path, 'r') as f:
-            result_records = json.load(f)
+        result_records = load_result_records()
         
         healthy_count = sum(1 for record in result_records if record['results'] == 'Healthy')
         unhealthy_count = len(result_records) - healthy_count

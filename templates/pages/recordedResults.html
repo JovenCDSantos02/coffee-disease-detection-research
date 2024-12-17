@@ -144,7 +144,6 @@
     
     <script src="{{ url_for('serve_static', path='assets/js/circle-menu.js') }}"></script> 
     <script src="{{ url_for('serve_static', path='assets/js/app.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jspdf"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
     <script>
@@ -156,10 +155,10 @@
             return new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Leaf Scale', 'Mealy Bug', 'Twig Borer', 'Anthracnose', 'Brown Eye', 'Leaf Rust'],
+                    labels: ['Leaf Scale', 'Mealy Bug', 'Twig Borer', 'Anthracnose', 'Brown Eye', 'Leaf Rust', 'Healthy'],
                     datasets: [{
                         label: 'Tally of Results',
-                        data: [0, 0, 0, 0, 0, 0],
+                        data: [0, 0, 0, 0, 0, 0, 0],
                         backgroundColor: '#2F4F4F', 
                         borderColor: 'white',   
                         borderWidth: 1
@@ -190,12 +189,31 @@
         }
 
         async function fetchRecords() {
-            const response = await fetch('/get-records');
-            allRecords = await response.json();
+    const loader = document.createElement('p');
+    loader.textContent = "Loading records...";
+    document.body.appendChild(loader);
+
+    try {
+        const response = await fetch('/get-records');
+        if (!response.ok) throw new Error("Server error");
+
+        allRecords = await response.json();
+        if (allRecords.length > 0) {
             populateMonthYearDropdown();
             populateFarmDropdown();
             updateGraph();
+        } else {
+            alert("No data available.");
         }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Failed to fetch records.");
+    } finally {
+        loader.remove();
+    }
+}
+
+
 
         function populateMonthYearDropdown() {
             const monthYearSelect = document.getElementById('month-year');
@@ -216,20 +234,24 @@
         }
 
         function populateFarmDropdown() {
-            const farmSelect = document.getElementById('farm');
-            const uniqueFarms = [...new Set(allRecords.map(record => record.farm))];
+    const farmSelect = document.getElementById('farm');
+    farmSelect.innerHTML = ''; 
 
-            uniqueFarms.forEach(farm => {
-                const option = document.createElement('option');
-                option.value = farm;
-                option.textContent = farm;
-                farmSelect.appendChild(option);
-            });
+    const uniqueFarms = [...new Set(allRecords.map(record => record.farm))];
+    if (uniqueFarms.length === 0) {
+        farmSelect.innerHTML = '<option value="">No Farms Available</option>';
+        return;
+    }
 
-            if (uniqueFarms.length > 0) {
-                farmSelect.value = uniqueFarms[0];
-            }
-        }
+    uniqueFarms.forEach(farm => {
+        const option = document.createElement('option');
+        option.value = farm;
+        option.textContent = farm;
+        farmSelect.appendChild(option);
+    });
+    farmSelect.value = uniqueFarms[0];
+}
+
 
         function getCurrentMonthYear() {
             const now = new Date();
@@ -245,52 +267,103 @@
         }
 
         function updateGraph() {
-            const selectedMonthYear = document.getElementById("month-year").value;
-            const selectedFarm = document.getElementById("farm").value;
+    const selectedMonthYear = document.getElementById("month-year").value;
+    const selectedFarm = document.getElementById("farm").value;
 
-            const [monthName, year] = selectedMonthYear.split(" ");
-            const month = ("0" + (new Date(monthName + " 1, 2000").getMonth() + 1)).slice(-2);
-            const filterDate = `${year}-${month}`;
+    const [monthName, year] = selectedMonthYear.split(" ");
+    const month = ("0" + (new Date(monthName + " 1, 2000").getMonth() + 1)).slice(-2);
+    const filterDate = `${year}-${month}`;
 
-            const filteredRecords = allRecords.filter(record => record.date.startsWith(filterDate) && record.farm === selectedFarm);
+    const filteredRecords = allRecords.filter(record => 
+        record.date.startsWith(filterDate) && record.farm === selectedFarm
+    );
 
-            const tally = {
-                "Leaf Scale": 0,
-                "Mealy Bug": 0,
-                "Twig Borer": 0,
-                "Anthracnose": 0,
-                "Brown Eye": 0,
-                "Leaf Rust": 0
-            };
+    const tally = {
+        "Leaf Scale": 0,
+        "Mealy Bug": 0,
+        "Twig Borer": 0,
+        "Anthracnose": 0,
+        "Brown Eye": 0,
+        "Leaf Rust": 0,
+        "Healthy": 0
+    };
 
-            filteredRecords.forEach(record => {
-                if (tally.hasOwnProperty(record.results)) {
-                    tally[record.results]++;
-                }
-            });
-
-            chart.data.datasets[0].data = Object.values(tally);
-            chart.update();
+    filteredRecords.forEach(record => {
+        if (tally.hasOwnProperty(record.results)) {
+            tally[record.results]++;
         }
+    });
 
-        function generatePDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            doc.text('Recorded Results', 10, 10);
-            doc.text(`Month and Year: ${document.getElementById("month-year").value}`, 10, 20);
-            doc.text(`Farm: ${document.getElementById("farm").value}`, 10, 30);
-
-            doc.addImage(chart.toBase64Image(), 'JPEG', 15, 40, 180, 100);
-
-            doc.save('recorded-results.pdf');
-        }
-
-        function openPopup() {
-    document.getElementById('popup').style.display = 'block';
-    populatePopupFilters();
-    updatePopupTable();
+    chart.data.datasets[0].data = Object.values(tally);
+    chart.update();
 }
+
+
+function generatePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    const currentDate = new Date().toLocaleDateString();
+
+    const monthYear = document.getElementById("month-year").value;
+    const selectedFarm = document.getElementById("farm").value;
+
+    const chartData = chart.data.datasets[0].data; 
+    const labels = chart.data.labels; 
+    const healthyIndex = labels.indexOf("Healthy");
+
+    let unhealthySum = 0;
+    let healthyValue = 0;
+
+    chartData.forEach((value, index) => {
+        if (index === healthyIndex) {
+            healthyValue = value;
+        } else {
+            unhealthySum += value;
+        }
+    });
+
+    doc.setFontSize(16);
+    doc.text(`Coffee Plant Health Identification Report of ${monthYear}`, 105, 10, null, null, "center");
+
+    doc.setFontSize(12);
+    doc.text(`Date: ${currentDate}`, 10, 20);
+    doc.text(`Farm: ${selectedFarm}`, 10, 30);
+
+    doc.setFontSize(16);
+    doc.text("Summary", 105, 50, null, null, "center");
+
+    doc.setFontSize(10);
+    doc.text(`Healthy: ${healthyValue}`, 10, 60, null, null);
+    doc.text(`Unhealthy: ${unhealthySum}`, 10, 70, null, null);
+    doc.text(`Total Coffee Plants Identified: ${healthyValue + unhealthySum}`, 10, 80, null, null);
+
+    const chartImage = chart.toBase64Image(); 
+    doc.setFontSize(16);
+    doc.text("Tally of Unhealthy Coffee Plants:", 105, 100, null, null, "center");
+
+    doc.setFontSize(10);
+    let yPosition = 110;
+const lineSpacing = 10;
+labels.forEach((label, index) => {
+    if (label !== "Healthy") {
+        if (yPosition > 270) { 
+            doc.addPage();
+            yPosition = 20;
+        }
+        doc.text(`${label}: ${chartData[index]}`, 10, yPosition, null, null);
+        yPosition += lineSpacing;
+    }
+});
+
+
+    doc.addImage(chartImage, 'JPEG', 15, yPosition, 180, 100);
+
+    const dateNow = new Date().toISOString().split('T')[0];
+    doc.save(`coffee-plant-health-report-${dateNow}.pdf`);
+}
+
+
 
 function closePopup() {
     document.getElementById('popup').style.display = 'none';
@@ -301,7 +374,7 @@ function populatePopupFilters() {
     const popupFarmSelect = document.getElementById('popup-farm');
 
     popupMonthYearSelect.innerHTML = '';
-    popupFarmSelect.innerHTML = '';
+    popupFarmSelect.innerHTML = '<option value="All">All</option>';
 
     const uniqueMonthYears = [...new Set(allRecords.map(record => {
         const [year, month] = record.date.split('-').slice(0, 2);
