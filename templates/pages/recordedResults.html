@@ -299,6 +299,7 @@
 }
 
 
+
 function generatePDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -310,54 +311,83 @@ function generatePDF() {
 
     const chartData = chart.data.datasets[0].data; 
     const labels = chart.data.labels; 
-    const healthyIndex = labels.indexOf("Healthy");
+    const healthyIndex = labels.findIndex(label => label === "Healthy");
+    const healthyValue = healthyIndex !== -1 ? chartData[healthyIndex] : null;
 
-    let unhealthySum = 0;
-    let healthyValue = 0;
+    doc.setTextColor(0, 0, 0); // black
+        doc.text("Date: ", 10, 10);
+        doc.setTextColor(143, 188, 143); // lightGreen
+        const dateXPosition = 10 + doc.getTextWidth("Date: ");
+        doc.text(currentDate, dateXPosition, 10);
 
-    chartData.forEach((value, index) => {
-        if (index === healthyIndex) {
-            healthyValue = value;
-        } else {
-            unhealthySum += value;
-        }
-    });
+        //2
+        doc.setDrawColor(47, 79, 79); // darkGreen
+        doc.line(5, 15, 205, 15);
 
-    doc.setFontSize(16);
-    doc.text(`Coffee Plant Health Identification Report of ${monthYear}`, 105, 10, null, null, "center");
+        //3
+        doc.setTextColor(0, 0, 0); // black
+        doc.text("Prepared by: Coffee Plant Diagnosis", 10, 22.5);
 
-    doc.setFontSize(12);
-    doc.text(`Date: ${currentDate}`, 10, 20);
-    doc.text(`Farm: ${selectedFarm}`, 10, 30);
+        //4
+        const lineHeight = 30; 
+        const startY = 30;
+        const textPadding = 5; 
 
-    doc.setFontSize(16);
-    doc.text("Summary", 105, 50, null, null, "center");
+        doc.setFontSize(30);
+        const lineText = "Summary";
+        const backgroundColor = [47, 79, 79]; 
 
-    doc.setFontSize(10);
-    doc.text(`Healthy: ${healthyValue}`, 10, 60, null, null);
-    doc.text(`Unhealthy: ${unhealthySum}`, 10, 70, null, null);
-    doc.text(`Total Coffee Plants Identified: ${healthyValue + unhealthySum}`, 10, 80, null, null);
+        const textWidth = 180;
 
-    const chartImage = chart.toBase64Image(); 
-    doc.setFontSize(16);
-    doc.text("Tally of Unhealthy Coffee Plants:", 105, 100, null, null, "center");
+        const cornerRadius = 5;
+        doc.setFont('times');
+        doc.setFillColor(...backgroundColor); 
+        doc.roundedRect(
+            10, 
+            startY, 
+            textWidth + textPadding * 2, 
+            lineHeight, 
+            cornerRadius, 
+            cornerRadius, 
+            "F"
+        );
 
-    doc.setFontSize(10);
-    let yPosition = 110;
-const lineSpacing = 10;
-labels.forEach((label, index) => {
-    if (label !== "Healthy") {
-        if (yPosition > 270) { 
-            doc.addPage();
-            yPosition = 20;
-        }
-        doc.text(`${label}: ${chartData[index]}`, 10, yPosition, null, null);
-        yPosition += lineSpacing;
-    }
-});
+        doc.setTextColor(255, 255, 255); // white
+        doc.text(lineText, 10 + textPadding, startY + lineHeight / 2 + 3);
 
+        //5
+        doc.setFontSize(16);
+        doc.setFont('helvetica');
+        doc.setTextColor(0, 0, 0); // black
+        
+        doc.text("Overview of Identified Coffee Plants:", 105, 70, null, null, "center");
 
-    doc.addImage(chartImage, 'JPEG', 15, yPosition, 180, 100);
+        doc.setFontSize(10);
+        let yPosition = 80;
+        const lineSpacing = 10;
+        const columnWidth = 90; 
+        const padding = 10;
+        let columnX = 10;
+
+        labels.forEach((label, index) => {
+            
+            if (yPosition > 270) { 
+                doc.addPage();
+                yPosition = 20; 
+                columnX = 10; 
+            }
+
+           
+            if (index === Math.floor(labels.length / 2)) {
+                columnX = 105;
+                yPosition = 75; 
+            }
+
+            doc.text(`${label}: ${chartData[index]}`, columnX, yPosition, null, null);
+            yPosition += lineSpacing;
+        });
+        const chartImage = chart.toBase64Image();
+        doc.addImage(chartImage, 'JPEG', 15, yPosition, 180, 100);
 
     const dateNow = new Date().toISOString().split('T')[0];
     doc.save(`coffee-plant-health-report-${dateNow}.pdf`);
