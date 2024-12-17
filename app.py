@@ -65,12 +65,12 @@ def load_result_records():
     """Load result records from Google Drive."""
     download_file(RESULT_RECORD_JSON_FILE_ID, 'data/resultRecord.json')
     with open('data/resultRecord.json') as f:
-        return json.load(f)
+        return json.load(f)['records']
 
 def save_result_records(records):
     """Save result records to Google Drive."""
     with open('data/resultRecord.json', 'w') as f:
-        json.dump(records, f, indent=4)
+        json.dump({'records': records}, f, indent=4)
     upload_file(RESULT_RECORD_JSON_FILE_ID, 'data/resultRecord.json')
 
 drive_service = initialize_drive_service()
