@@ -302,10 +302,15 @@ def predict():
 def get_records():
     try:
         records = load_result_records()
+
+        if not isinstance(records, list):
+            raise ValueError("'records' is not a valid list of records")
+
         return jsonify(records)
     except Exception as e:
+        print("Error loading records:", str(e))
         return jsonify({"error": str(e)}), 500
-
+    
 @app.route('/recordedResults.html')
 def recorded_results():
     if 'account_id' not in session:
