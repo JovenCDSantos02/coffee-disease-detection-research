@@ -369,6 +369,13 @@ function closePopup() {
     document.getElementById('popup').style.display = 'none';
 }
 
+function openPopup() {
+    document.getElementById('popup').style.display = 'block';
+    populatePopupFilters();
+    updatePopupTable();
+}
+
+
 function populatePopupFilters() {
     const popupMonthYearSelect = document.getElementById('popup-month-year');
     const popupFarmSelect = document.getElementById('popup-farm');
