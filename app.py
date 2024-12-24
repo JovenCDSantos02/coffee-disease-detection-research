@@ -319,7 +319,8 @@ def recorded_results():
 
     result_records = load_result_records()
 
-    farms = list(set([record['farm'] for record in result_records]))
+    farms = list(set([record['farm'] for record in result_records['records']]))
+
     month_years = list(set([record['date'][:7] for record in result_records]))
 
     return render_template('pages/recordedResults.html', farms=farms, month_years=month_years)
