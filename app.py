@@ -9,6 +9,7 @@ from PIL import Image
 from datetime import timedelta
 import gc
 import threading
+import gdown
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 from google.oauth2 import service_account
@@ -62,22 +63,14 @@ def save_accounts(accounts):
 
 def load_result_records():
     """Load result records from Google Drive."""
-    try:
-        download_file(RESULT_RECORD_JSON_FILE_ID, 'data/resultRecord.json')
-        with open('data/resultRecord.json') as f:
-            data = json.load(f)
-            return data.get('records', [])
-    except Exception as e:
-        app.logger.error(f"Error loading records: {e}")
-        return [] 
+    download_file(RESULT_RECORD_JSON_FILE_ID, 'data/resultRecord.json')
+    with open('data/resultRecord.json') as f:
+        return json.load(f)['records']
 
-
-def save_result_records(new_records):
-    """Save result records to Google Drive by appending new records."""
-    current_records = load_result_records()
-    current_records.extend(new_records)
+def save_result_records(records):
+    """Save result records to Google Drive."""
     with open('data/resultRecord.json', 'w') as f:
-        json.dump({'records': current_records}, f, indent=4)
+        json.dump({'records': records}, f, indent=4)
     upload_file(RESULT_RECORD_JSON_FILE_ID, 'data/resultRecord.json')
 
 drive_service = initialize_drive_service()
@@ -317,27 +310,19 @@ def get_records():
     except Exception as e:
         print("Error loading records:", str(e))
         return jsonify({"error": str(e)}), 500
-
+    
 @app.route('/recordedResults.html')
 def recorded_results():
     if 'account_id' not in session:
         flash('You need to log in first.', 'error')
-        return redirect(url_for('login')) 
+        return redirect(url_for('login'))
 
-    try:
-        result_records = load_result_records()
-        records = result_records.get('records', [])
-        
-        if isinstance(records, list):
-            farms = list(set([record['farm'] for record in records if 'farm' in record]))
-        else:
-            farms = []
-        month_years = list(set([record['date'][:7] for record in records if 'date' in record]))
-        return render_template('pages/recordedResults.html', farms=farms, month_years=month_years)
-    except Exception as e:
-        print("Error processing recorded results:", str(e))
-        flash('Error processing the data. Please try again later.', 'error')
-        return redirect(url_for('error_page'))
+    result_records = load_result_records()
+
+    farms = list(set([record['farm'] for record in result_records]))
+    month_years = list(set([record['date'][:7] for record in result_records]))
+
+    return render_template('pages/recordedResults.html', farms=farms, month_years=month_years)
 
 @app.route('/admin.html')
 def admin():
