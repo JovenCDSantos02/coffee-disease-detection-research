@@ -5,15 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="manifest" href="{{ url_for('serve_static', path='manifest.json') }}">
+    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/download.css') }}">
     <style>
-        /* General Reset */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* Body Styling */
         body {
             padding: 2rem;
             min-height: 100vh;
@@ -23,7 +22,6 @@
             align-items: center;
         }
 
-        /* Container Styling */
         .container {
             background-color: #2F4F4F;
             width: 384px;
@@ -66,7 +64,6 @@
             margin-bottom: 1.5rem;
         }
 
-        /* Input Styling */
         .user-box {
             position: relative;
             margin-bottom: 1.5rem;
@@ -101,7 +98,6 @@
             color: #03e9f4;
         }
 
-        /* Button Styling */
         button[type="submit"] {
             width: 100%;
             padding: 1rem;
@@ -119,7 +115,6 @@
             background-color: #8FBC8F;
         }
 
-        /* Flash Messages */
         ul {
             list-style: none;
             margin-top: 1rem;
@@ -130,27 +125,6 @@
             color: #FFF;
             font-size: 0.875rem;
             font-style: italic;
-        }
-
-        /* Download Circle */
-        .download-circle {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: #FFD700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .download-circle img {
-            width: 40px;
-            height: 40px;
         }
     </style>
 </head>

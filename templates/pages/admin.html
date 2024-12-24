@@ -7,6 +7,7 @@
     <link rel="manifest" href="{{ url_for('serve_static', path='manifest.json') }}">
     <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/nav-admin.css') }}">
     <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/user-mng.css') }}">
+    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/download.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 
 <style>
@@ -188,28 +189,6 @@
         cursor: pointer;
     }
 
-    .download-circle {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: #FFD700;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
-    }
-
-    .download-circle img {
-        width: 40px;
-        height: 40px;
-    }
-    .menu-item:hover img.hover-icon {
-    content: url('{{ url_for("serve_static", path="assets/images/reverse-black.png") }}');
-}
 </style>
 </head>
 <body>
@@ -381,8 +360,8 @@
                 </div>
             </div>
     </div>
-    <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #FFD700; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);">
-        <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download" style="width: 40px; height: 40px;" onclick="downloadApp()">
+    <div class="download-circle" onclick="downloadApp()">
+        <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download">
     </div>
     <script src="{{ url_for('serve_static', path='assets/js/circle-menu.js') }}"></script> 
     <script src="{{ url_for('serve_static', path='assets/js/app.js') }}"></script>

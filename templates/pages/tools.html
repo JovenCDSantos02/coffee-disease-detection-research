@@ -7,6 +7,7 @@
     
     <link rel="manifest" href="{{ url_for('serve_static', path='manifest.json') }}">
     <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/download.css') }}">
     <style>
         * {
           margin: 0;
@@ -20,6 +21,9 @@
           background-image: linear-gradient(135deg, #8B4513, #8FBC8F);
       }
 
+      button {
+        transition: background-color 0.3s;
+      }
       button[type="submit"] {
   cursor: pointer;
   background-color: #2F4F4F;
@@ -30,7 +34,6 @@
   padding: 1rem;
   width: 10rem;
   border: none;
-  transition: background-color 0.3s;
   margin: 0;
 }
 
@@ -422,9 +425,9 @@ form > button, #retry-button, #more-info-button {
             </div>            
             
 
-        <div class="download-circle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #FFD700; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);">
-            <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download" style="width: 40px; height: 40px;" onclick="downloadApp()">
-        </div>
+            <div class="download-circle" onclick="downloadApp()">
+                <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download">
+            </div>
     </div>
     <script src="{{ url_for('serve_static', path='assets/js/circle-menu.js') }}"></script> 
     <script src="{{ url_for('serve_static', path='assets/js/app.js') }}"></script>
