@@ -318,11 +318,13 @@ def recorded_results():
         return redirect(url_for('login'))
 
     result_records = load_result_records()
-
-    farms = list(set([record['farm'] for record in result_records['records']]))
-
-    month_years = list(set([record['date'][:7] for record in result_records]))
-
+    records = result_records.get('records', [])
+    
+    if isinstance(records, list):
+        farms = list(set([record['farm'] for record in records if 'farm' in record]))
+    else:
+        farms = [] 
+    month_years = list(set([record['date'][:7] for record in result_records if 'date' in record]))
     return render_template('pages/recordedResults.html', farms=farms, month_years=month_years)
 
 @app.route('/admin.html')
