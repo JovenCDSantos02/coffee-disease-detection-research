@@ -321,7 +321,6 @@ def predict():
 
         gc.collect()
 
-
 @app.route('/get-records', methods=['GET'])
 def get_records():
     try:

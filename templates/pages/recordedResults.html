@@ -199,12 +199,8 @@
         if (!response.ok) throw new Error("Server error");
 
         const allRecords = await response.json();
-        
-        if (allRecords.error) {
-            throw new Error(allRecords.error);
-        }
 
-        if (allRecords && Array.isArray(allRecords)) {
+        if (Array.isArray(allRecords)) {
             populateMonthYearDropdown();
             populateFarmDropdown();
             updateGraph();
