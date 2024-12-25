@@ -218,7 +218,7 @@
     
         function populateMonthYearDropdown() {
             const monthYearSelect = document.getElementById('month-year');
-            const uniqueMonthYears = [...new Set(allRecords.records.map(record => {
+            const uniqueMonthYears = [...new Set(allRecords.map(record => {
                 const [year, month] = record.date.split('-').slice(0, 2);
                 return `${getMonthName(month)} ${year}`;
             }))];
@@ -238,7 +238,7 @@
             const farmSelect = document.getElementById('farm');
             farmSelect.innerHTML = ''; 
     
-            const uniqueFarms = [...new Set(allRecords.records.map(record => record.farm))];
+            const uniqueFarms = [...new Set(allRecords.map(record => record.farm))];
             if (uniqueFarms.length === 0) {
                 farmSelect.innerHTML = '<option value="">No Farms Available</option>';
                 return;
@@ -274,7 +274,7 @@
             const month = ("0" + (new Date(monthName + " 1, 2000").getMonth() + 1)).slice(-2);
             const filterDate = `${year}-${month}`;
     
-            const filteredRecords = allRecords.records.filter(record => 
+            const filteredRecords = allRecords.filter(record => 
                 record.date.startsWith(filterDate) && record.farm === selectedFarm
             );
     
