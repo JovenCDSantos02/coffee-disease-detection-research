@@ -65,7 +65,7 @@ def load_result_records():
     try:
         download_file(RESULT_RECORD_JSON_FILE_ID, 'data/resultRecord.json')
         with open('data/resultRecord.json') as f:
-            return json.load(f)
+            return json.load(f)['records']
     except Exception as e:
         print("Error loading result records from file:", str(e)) 
         raise
