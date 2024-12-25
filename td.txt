@@ -1,5 +1,1 @@
-loading in history
-fix the results in tools.html
-
-check:
-search something
+loading spinner??

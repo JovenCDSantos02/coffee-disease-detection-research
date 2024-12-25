@@ -150,7 +150,7 @@
     <script>
         let allRecords = [];
         const chart = createChart();
-
+    
         function createChart() {
             const ctx = document.getElementById('resultsChart').getContext('2d');
             return new Chart(ctx, {
@@ -159,7 +159,7 @@
                     labels: ['Leaf Scale', 'Mealy Bug', 'Twig Borer', 'Anthracnose', 'Brown Eye', 'Leaf Rust', 'Healthy'],
                     datasets: [{
                         label: 'Tally of Results',
-                        data: [0, 0, 0, 0, 0, 0, 0],
+                        data: [0, 0, 0, 0, 0, 0, 0], // Initial counts
                         backgroundColor: '#2F4F4F', 
                         borderColor: 'white',   
                         borderWidth: 1
@@ -188,310 +188,237 @@
                 }
             });
         }
-
+    
         async function fetchRecords() {
-    const loader = document.createElement('p');
-    loader.textContent = "Loading records...";
-    document.body.appendChild(loader);
-
-    try {
-        const response = await fetch('/get-records');
-        if (!response.ok) throw new Error("Server error");
-
-        allRecords = await response.json();
-        if (allRecords.length > 0) {
-            populateMonthYearDropdown();
-            populateFarmDropdown();
-            updateGraph();
-        } else {
-            alert("No data available.");
+            const loader = document.createElement('p');
+            loader.textContent = "Loading records...";
+            document.body.appendChild(loader);
+    
+            try {
+                const response = await fetch('/get-records');
+                if (!response.ok) throw new Error("Server error");
+    
+                allRecords = await response.json();
+    
+                if (allRecords && allRecords.records && Array.isArray(allRecords.records)) {
+                    populateMonthYearDropdown();
+                    populateFarmDropdown();
+                    updateGraph();
+                } else {
+                    alert("No data available.");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Failed to fetch records.");
+            } finally {
+                loader.remove();
+            }
         }
-    } catch (error) {
-        console.error("Error:", error);
-        alert("Failed to fetch records.");
-    } finally {
-        loader.remove();
-    }
-}
-
-
-
+    
         function populateMonthYearDropdown() {
             const monthYearSelect = document.getElementById('month-year');
-            const uniqueMonthYears = [...new Set(allRecords.map(record => {
+            const uniqueMonthYears = [...new Set(allRecords.records.map(record => {
                 const [year, month] = record.date.split('-').slice(0, 2);
                 return `${getMonthName(month)} ${year}`;
             }))];
-
+    
             uniqueMonthYears.forEach(monthYear => {
                 const option = document.createElement('option');
                 option.value = monthYear;
                 option.textContent = monthYear;
                 monthYearSelect.appendChild(option);
             });
-
+    
             const currentMonthYear = getCurrentMonthYear();
             monthYearSelect.value = currentMonthYear;
         }
-
+    
         function populateFarmDropdown() {
-    const farmSelect = document.getElementById('farm');
-    farmSelect.innerHTML = ''; 
-
-    const uniqueFarms = [...new Set(allRecords.map(record => record.farm))];
-    if (uniqueFarms.length === 0) {
-        farmSelect.innerHTML = '<option value="">No Farms Available</option>';
-        return;
-    }
-
-    uniqueFarms.forEach(farm => {
-        const option = document.createElement('option');
-        option.value = farm;
-        option.textContent = farm;
-        farmSelect.appendChild(option);
-    });
-    farmSelect.value = uniqueFarms[0];
-}
-
-
+            const farmSelect = document.getElementById('farm');
+            farmSelect.innerHTML = ''; 
+    
+            const uniqueFarms = [...new Set(allRecords.records.map(record => record.farm))];
+            if (uniqueFarms.length === 0) {
+                farmSelect.innerHTML = '<option value="">No Farms Available</option>';
+                return;
+            }
+    
+            uniqueFarms.forEach(farm => {
+                const option = document.createElement('option');
+                option.value = farm;
+                option.textContent = farm;
+                farmSelect.appendChild(option);
+            });
+            farmSelect.value = uniqueFarms[0];
+        }
+    
         function getCurrentMonthYear() {
             const now = new Date();
             const month = now.getMonth() + 1; 
             const year = now.getFullYear();
             return `${getMonthName(month.toString().padStart(2, '0'))} ${year}`;
         }
-
+    
         function getMonthName(month) {
             const monthNames = ["January", "February", "March", "April", "May", "June",
                                 "July", "August", "September", "October", "November", "December"];
             return monthNames[parseInt(month) - 1];
         }
-
-        function updateGraph() {
-    const selectedMonthYear = document.getElementById("month-year").value;
-    const selectedFarm = document.getElementById("farm").value;
-
-    const [monthName, year] = selectedMonthYear.split(" ");
-    const month = ("0" + (new Date(monthName + " 1, 2000").getMonth() + 1)).slice(-2);
-    const filterDate = `${year}-${month}`;
-
-    const filteredRecords = allRecords.filter(record => 
-        record.date.startsWith(filterDate) && record.farm === selectedFarm
-    );
-
-    const tally = {
-        "Leaf Scale": 0,
-        "Mealy Bug": 0,
-        "Twig Borer": 0,
-        "Anthracnose": 0,
-        "Brown Eye": 0,
-        "Leaf Rust": 0,
-        "Healthy": 0
-    };
-
-    filteredRecords.forEach(record => {
-        if (tally.hasOwnProperty(record.results)) {
-            tally[record.results]++;
-        }
-    });
-
-    chart.data.datasets[0].data = Object.values(tally);
-    chart.update();
-}
-
-
-
-function generatePDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    const currentDate = new Date().toLocaleDateString();
-
-    const monthYear = document.getElementById("month-year").value;
-    const selectedFarm = document.getElementById("farm").value;
-
-    const chartData = chart.data.datasets[0].data; 
-    const labels = chart.data.labels; 
-    const healthyIndex = labels.findIndex(label => label === "Healthy");
-    const healthyValue = healthyIndex !== -1 ? chartData[healthyIndex] : null;
-    const leafScaleIndex = labels.findIndex(label => label === "Leaf Scale");
-    const leafScaleValue = leafScaleIndex !== -1 ? chartData[leafScaleIndex] : null;
-    const mealyBugIndex = labels.findIndex(label => label === "Mealy Bug");
-    const mealyBugValue = mealyBugIndex !== -1 ? chartData[mealyBugIndex] : null;
-    const twigBorerIndex = labels.findIndex(label => label === "Twig Borer");
-    const twigBorerValue = twigBorerIndex !== -1 ? chartData[twigBorerIndex] : null;
-    const anthracnoseIndex = labels.findIndex(label => label === "Anthracnose");
-    const anthracnoseValue = anthracnoseIndex !== -1 ? chartData[anthracnoseIndex] : null;
-    const brownEyeIndex = labels.findIndex(label => label === "Brown Eye");
-    const brownEyeValue = brownEyeIndex !== -1 ? chartData[brownEyeIndex] : null;
-    const leafRustIndex = labels.findIndex(label => label === "Leaf Rust");
-    const leafRustValue = leafRustIndex !== -1 ? chartData[leafRustIndex] : null;
-    const totalValue = chartData.reduce((sum, value) => sum + value, 0);
-    const notHealthyValue = totalValue - healthyValue;
-
     
-        doc.setFont("helvetica", "normal");
-doc.setFontSize(10);
-doc.text("Date:", 20, 20);
-doc.setTextColor(143, 188, 143); 
-doc.text(currentDate, 35, 20);
-
-doc.setDrawColor(47, 79, 79); 
-doc.setLineWidth(0.5); 
-doc.line(20, 25, 190, 25); 
-
-doc.setFont("helvetica", "normal");
-doc.setTextColor(0, 0, 0); 
-doc.text("Prepared by: Coffee Plant Diagnosis", 20, 30);
-
-const summaryRectX = 20;
-const summaryRectY = 40;
-const summaryRectWidth = 170;
-const summaryRectHeight = 20;
-const summaryTextX = 30; 
-const summaryFontSize = 26;
-
-doc.setFillColor(47, 79, 79);
-doc.roundedRect(summaryRectX, summaryRectY, summaryRectWidth, summaryRectHeight, 3, 3, "F"); 
-doc.setFont("times", "bold");
-doc.setFontSize(summaryFontSize);
-doc.setTextColor(255, 255, 255); 
-
-const padding = 0;
-const summaryTextY = summaryRectY + padding + summaryFontSize / 2;
-doc.text("Summary", summaryTextX, summaryTextY);
-
-doc.setFont("helvetica", "normal");
-doc.setFontSize(10);
-doc.setTextColor(0, 0, 0);
-doc.text(
-  `Herein is the report on the coffee plant diagnosis conducted in ${selectedFarm} in ${monthYear}. A total of`,
-  20,
-  70,
-  { maxWidth: 170 }
-);
-doc.setFont("helvetica", "bold");
-doc.text(`${totalValue} coffee plants were assessed,`, 20, 75, { maxWidth: 170 });
-doc.setFont("helvetica", "normal");
-doc.text(
-  "with",
-  85,
-  75,
-  { maxWidth: 170 }
-);
-doc.setFont("helvetica", "bold");
-doc.text(`${healthyValue} classified as healthy and ${notHealthyValue} as unhealthy`, 92, 75, { maxWidth: 170 });
-doc.setFont("helvetica", "normal");
-doc.text("Among the unhealthy plants, the following diseases/pests were identified:", 20, 80, {
-  maxWidth: 170,
-});
-
-doc.setFont("helvetica", "bold");
-doc.setFontSize(12);
-doc.text("Tally of Unhealthy Coffee Plant", 20, 95);
-
-doc.setFont("helvetica", "normal");
-doc.setFontSize(10);
-doc.text(`• Leaf Scale: ${leafScaleValue}`, 20, 105);
-doc.text(`• Mealy Bug: ${mealyBugValue}`, 20, 110);
-doc.text(`• Twig Borer: ${twigBorerValue}`, 20, 115);
-doc.text(`• Anthracnose: ${anthracnoseValue}`, 20, 120);
-doc.text(`• Brown Eye: ${brownEyeValue}`, 20, 125);
-doc.text(`• Leaf Rust: ${leafRustValue}`, 20, 130);
-
-doc.setFont("helvetica", "bold");
-doc.setFontSize(12);
-doc.text("Classification of Unhealthy Coffee Plant", 20, 145);
-
-const chartYPosition = 155; 
-const chartImage = chart.toBase64Image();
-
-doc.addImage(chartImage, 'JPEG', 15, chartYPosition, 180, 100); 
-
-const summaryTextYPosition = chartYPosition + 105;  
-
-doc.setFont("helvetica", "italic");
-doc.setFontSize(10);
-doc.text(
-  `Unhealthy Coffee Plants at ${monthYear} in ${selectedFarm}`,
-  105,
-  summaryTextYPosition, 
-  { align: "center" }
-);
-
-    const dateNow = new Date().toISOString().split('T')[0];
-    doc.save(`coffee-plant-health-report-${dateNow}.pdf`);
-}
-
-
-
-function closePopup() {
-    document.getElementById('popup').style.display = 'none';
-}
-
-function openPopup() {
-    document.getElementById('popup').style.display = 'block';
-    populatePopupFilters();
-    updatePopupTable();
-}
-
-
-function populatePopupFilters() {
-    const popupMonthYearSelect = document.getElementById('popup-month-year');
-    const popupFarmSelect = document.getElementById('popup-farm');
-
-    popupMonthYearSelect.innerHTML = '';
-    popupFarmSelect.innerHTML = '<option value="All">All</option>';
-
-    const uniqueMonthYears = [...new Set(allRecords.map(record => {
-        const [year, month] = record.date.split('-').slice(0, 2);
-        return `${getMonthName(month)} ${year}`;
-    }))];
-    uniqueMonthYears.forEach(monthYear => {
-        const option = document.createElement('option');
-        option.value = monthYear;
-        option.textContent = monthYear;
-        popupMonthYearSelect.appendChild(option);
-    });
-
-    const uniqueFarms = [...new Set(allRecords.map(record => record.farm))];
-    uniqueFarms.forEach(farm => {
-        const option = document.createElement('option');
-        option.value = farm;
-        option.textContent = farm;
-        popupFarmSelect.appendChild(option);
-    });
-}
-
-function updatePopupTable() {
-    const popupTableBody = document.getElementById('popup-table-body');
-    popupTableBody.innerHTML = '';
-
-    const selectedMonthYear = document.getElementById('popup-month-year').value;
-    const selectedFarm = document.getElementById('popup-farm').value;
-
-    const [monthName, year] = selectedMonthYear.split(' ');
-    const month = ("0" + (new Date(monthName + " 1, 2000").getMonth() + 1)).slice(-2);
-    const filterDate = `${year}-${month}`;
-
-    const filteredRecords = allRecords.filter(record =>
-        record.date.startsWith(filterDate) && (selectedFarm === 'All' || record.farm === selectedFarm)
-    );
-
-    filteredRecords.forEach(record => {
-        const row = document.createElement('tr');
-        row.innerHTML = `<td>${record.date}</td><td>${record['account-id']}</td><td>${record.results}</td><td>${record.farm}</td>`;
-        popupTableBody.appendChild(row);
-    });
-}
-
-
-        function downloadApp() {
-            alert('App download initiated');
+        function updateGraph() {
+            const selectedMonthYear = document.getElementById("month-year").value;
+            const selectedFarm = document.getElementById("farm").value;
+    
+            const [monthName, year] = selectedMonthYear.split(" ");
+            const month = ("0" + (new Date(monthName + " 1, 2000").getMonth() + 1)).slice(-2);
+            const filterDate = `${year}-${month}`;
+    
+            const filteredRecords = allRecords.records.filter(record => 
+                record.date.startsWith(filterDate) && record.farm === selectedFarm
+            );
+    
+            const tally = {
+                "Leaf Scale": 0,
+                "Mealy Bug": 0,
+                "Twig Borer": 0,
+                "Anthracnose": 0,
+                "Brown Eye": 0,
+                "Leaf Rust": 0,
+                "Healthy": 0
+            };
+    
+            filteredRecords.forEach(record => {
+                if (tally.hasOwnProperty(record.results)) {
+                    tally[record.results]++;
+                }
+            });
+    
+            chart.data.datasets[0].data = Object.values(tally);
+            chart.update();
         }
-
-
-        fetchRecords();
-    </script>
+    
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+    
+            const currentDate = new Date().toLocaleDateString();
+    
+            const monthYear = document.getElementById("month-year").value;
+            const selectedFarm = document.getElementById("farm").value;
+    
+            const chartData = chart.data.datasets[0].data; 
+            const labels = chart.data.labels; 
+            const healthyIndex = labels.findIndex(label => label === "Healthy");
+            const healthyValue = healthyIndex !== -1 ? chartData[healthyIndex] : null;
+            const leafScaleIndex = labels.findIndex(label => label === "Leaf Scale");
+            const leafScaleValue = leafScaleIndex !== -1 ? chartData[leafScaleIndex] : null;
+            const mealyBugIndex = labels.findIndex(label => label === "Mealy Bug");
+            const mealyBugValue = mealyBugIndex !== -1 ? chartData[mealyBugIndex] : null;
+            const twigBorerIndex = labels.findIndex(label => label === "Twig Borer");
+            const twigBorerValue = twigBorerIndex !== -1 ? chartData[twigBorerIndex] : null;
+            const anthracnoseIndex = labels.findIndex(label => label === "Anthracnose");
+            const anthracnoseValue = anthracnoseIndex !== -1 ? chartData[anthracnoseIndex] : null;
+            const brownEyeIndex = labels.findIndex(label => label === "Brown Eye");
+            const brownEyeValue = brownEyeIndex !== -1 ? chartData[brownEyeIndex] : null;
+            const leafRustIndex = labels.findIndex(label => label === "Leaf Rust");
+            const leafRustValue = leafRustIndex !== -1 ? chartData[leafRustIndex] : null;
+            const totalValue = chartData.reduce((sum, value) => sum + value, 0);
+            const notHealthyValue = totalValue - healthyValue;
+    
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.text("Date:", 20, 20);
+            doc.setTextColor(143, 188, 143); 
+            doc.text(currentDate, 35, 20);
+    
+            doc.setDrawColor(47, 79, 79); 
+            doc.setLineWidth(0.5); 
+            doc.line(20, 25, 190, 25); 
+    
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(0, 0, 0); 
+            doc.text("Prepared by: Coffee Plant Diagnosis", 20, 30);
+    
+            const summaryRectX = 20;
+            const summaryRectY = 40;
+            const summaryRectWidth = 170;
+            const summaryRectHeight = 20;
+            const summaryTextX = 30; 
+            const summaryFontSize = 26;
+    
+            doc.setFillColor(47, 79, 79);
+            doc.roundedRect(summaryRectX, summaryRectY, summaryRectWidth, summaryRectHeight, 3, 3, "F"); 
+            doc.setFont("times", "bold");
+            doc.setFontSize(summaryFontSize);
+            doc.setTextColor(255, 255, 255); 
+    
+            const padding = 0;
+            const summaryTextY = summaryRectY + padding + summaryFontSize / 2;
+            doc.text("Summary", summaryTextX, summaryTextY);
+    
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+            doc.text(
+                `Herein is the report on the coffee plant diagnosis conducted in ${selectedFarm} in ${monthYear}. A total of`,
+                20,
+                70,
+                { maxWidth: 170 }
+            );
+            doc.setFont("helvetica", "bold");
+            doc.text(`${totalValue} coffee plants were assessed,`, 20, 75, { maxWidth: 170 });
+            doc.setFont("helvetica", "normal");
+            doc.text(
+                "with",
+                85,
+                75,
+                { maxWidth: 170 }
+            );
+            doc.setFont("helvetica", "bold");
+            doc.text(`${healthyValue} classified as healthy and ${notHealthyValue} as unhealthy`, 92, 75, { maxWidth: 170 });
+            doc.setFont("helvetica", "normal");
+            doc.text("Among the unhealthy plants, the following diseases/pests were identified:", 20, 80, {
+                maxWidth: 170,
+            });
+    
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(12);
+            doc.text("Tally of Unhealthy Coffee Plant", 20, 95);
+    
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.text(`• Leaf Scale: ${leafScaleValue}`, 20, 105);
+            doc.text(`• Mealy Bug: ${mealyBugValue}`, 20, 110);
+            doc.text(`• Twig Borer: ${twigBorerValue}`, 20, 115);
+            doc.text(`• Anthracnose: ${anthracnoseValue}`, 20, 120);
+            doc.text(`• Brown Eye: ${brownEyeValue}`, 20, 125);
+            doc.text(`• Leaf Rust: ${leafRustValue}`, 20, 130);
+    
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(12);
+            doc.text("Classification of Unhealthy Coffee Plant", 20, 145);
+    
+            const chartYPosition = 155; 
+            const chartImage = chart.toBase64Image();
+    
+            doc.addImage(chartImage, 'JPEG', 15, chartYPosition, 180, 100); 
+    
+            const summaryTextYPosition = chartYPosition + 105;  
+    
+            doc.setFont("helvetica", "italic");
+            doc.setFontSize(10);
+            doc.text(
+                `Unhealthy Coffee Plants at ${monthYear} in ${selectedFarm}`,
+                105,
+                summaryTextYPosition, 
+                { align: "center" }
+            );
+    
+            const dateNow = new Date().toISOString().split('T')[0];
+            doc.save(`coffee-plant-health-report-${dateNow}.pdf`);
+        }
+    
+        fetchRecords(); 
+    </script>    
 </body>
 </html>
