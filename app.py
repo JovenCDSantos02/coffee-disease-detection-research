@@ -326,16 +326,12 @@ def predict():
 def get_records():
     try:
         data = load_result_records()
-        
-        if isinstance(data, dict) and 'records' in data:
-            records = data['records']
-            
-            if isinstance(records, list):
-                return jsonify(records)
-            else:
-                raise ValueError("'records' is not a list")
+
+        if isinstance(data, list):
+            return jsonify(data)
         else:
-            raise ValueError("'records' key not found in the data")
+            raise ValueError("Data is not a list of records")
+
     except Exception as e:
         print("Error loading records:", str(e))
         return jsonify({"error": str(e)}), 500
