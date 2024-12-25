@@ -66,10 +66,18 @@ def load_result_records():
     with open('data/resultRecord.json') as f:
         return json.load(f)['records']
 
-def save_result_records(records):
+def save_result_records(new_record):
     """Save result records to Google Drive."""
+    try:
+        with open('data/resultRecord.json', 'r') as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        data = {'records': []}  
+    data['records'].append(new_record)
+    
     with open('data/resultRecord.json', 'w') as f:
-        json.dump({'records': records}, f, indent=4)
+        json.dump(data, f, indent=4)
+    
     upload_file(RESULT_RECORD_JSON_FILE_ID, 'data/resultRecord.json')
 
 drive_service = initialize_drive_service()
@@ -181,14 +189,18 @@ def search():
     
     def matches_query(item):
         fields_to_search = [
-            item.get('name', '').lower(),
-            item.get('description', '').lower(),
-            item.get('longDescription', '').lower(),
-            item.get('cure', '').lower(),
-            item.get('longCure', '').lower()
+            'name',  
+            'description', 
+            'longDescription',  
+            'cure',  
+            'longCure'  
         ]
-        return any(query in field for field in fields_to_search)
-    
+        
+        return any(
+            query in str(field).lower() for field_list_name in fields_to_search
+            for field in item.get(field_list_name, [])
+        ) or query in item.get('name', '').lower()
+
     filtered_diseases = [
         item for item in diseases_info 
         if matches_query(item) and item['name'] in ['Anthracnose', 'Brown Eye', 'Leaf Rust']
@@ -214,8 +226,14 @@ def detail(name):
     if 'account_id' not in session:
         flash('You need to log in first.', 'error')
         return redirect(url_for('login'))
+
     item = next((item for item in diseases_info if item['name'] == name), None)
-    return render_template('pages/detail.html', item=item) if item else "Item not found", 404
+    
+    if item:
+        item['longDescription'] = '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.join(item['longDescription'])
+        item['longCure'] = '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.join(item['longCure'])
+
+    return render_template('pages/detail.html', item=item) if item else ("Item not found", 404)
 
 @app.route('/<path:path>')
 def serve_static(path):
@@ -261,19 +279,22 @@ def predict():
         predicted_disease_name = classes[predicted_class]
 
         disease_info = next((item for item in diseases_info if item['name'] == predicted_disease_name), None)
+
         if disease_info:
             response = {
                 'disease_name': disease_info['name'],
-                'disease_description': disease_info['description'],
-                'disease_cure': disease_info['cure'],
+                'disease_description': disease_info['description'][0] if disease_info['description'] else '',
+                'disease_cure': disease_info['cure'][0] if disease_info['cure'] else '',
                 'disease_image': disease_info['image']
             }
+
             record = {
                 "date": str(datetime.date.today()),
                 "account-id": session['account_id'],
                 "results": predicted_disease_name,
                 "farm": session.get('farm', 'Unknown')
             }
+
             try:
                 save_result_records(record)
             except Exception as e:
@@ -300,15 +321,22 @@ def predict():
 @app.route('/get-records', methods=['GET'])
 def get_records():
     try:
-        records = load_result_records()
+        data = load_result_records()
 
-        if not isinstance(records, list):
-            raise ValueError("'records' is not a valid list of records")
+        if isinstance(data, dict) and 'records' in data:
+            records = data['records']
+            
+            if isinstance(records, list):
+                return jsonify(records)
+            else:
+                raise ValueError("'records' is not a list")
+        else:
+            raise ValueError("'records' key not found in the data")
 
-        return jsonify(records)
     except Exception as e:
         print("Error loading records:", str(e))
         return jsonify({"error": str(e)}), 500
+
     
 @app.route('/recordedResults.html')
 def recorded_results():

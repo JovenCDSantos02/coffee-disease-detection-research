@@ -43,105 +43,88 @@
             margin: 1rem 0;
         }
 
-        .disease-info {
+        .main {
             display: flex;
-            gap: 20px;
-            align-items: flex-start;
-            flex-direction: row-reverse; 
+            flex-direction: column;
+            gap: 1rem; 
         }
 
         .image-container {
-            max-width: 70%;
+            max-width: 30%; 
             display: flex;
             justify-content: center;
+            margin: 0 auto;
             align-items: center;
             padding: 10px;
             box-sizing: border-box;
         }
 
-        .disease-info img {
+        .image-container img {
             border: 2px solid #ddd;
             border-radius: 10px;
             max-width: 100%;
-            height: 250px;
+            height: auto; 
         }
 
-        .disease-info div {
-            flex: 1;
-            font-family: 'Arial', sans-serif;
-        }
-
-        .disease-info p {
-            margin: 10px 0;
-            line-height: 1.6;
-            font-size: 1rem;
-            color: #333;
-        }
-
-        /* Responsive layout for small screens */
-    @media (max-width: 768px) {
-    .disease-info {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .disease-info img {
-        max-height: 200px; /* Adjust for smaller screens */
-        margin: 15px 0;
-    }
-    
-    .disease-info div {
-        padding: 10px;
-    }
-}
-
-        .disease-info .disease-title {
+        .disease-title {
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
             color: black;
-            margin-bottom: 15px;
         }
 
-        .disease-info .disease-description,
-        .disease-info .disease-cure {
-            margin-left: 20px;
-            color: #333; 
+        .disease-description, 
+        .disease-cure {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #333;
+            text-align: left; 
         }
 
-        .disease-info .disease-cure ul {
+        .disease-cure ul {
             list-style-type: disc;
             padding-left: 20px;
         }
 
-        .disease-info .disease-cure ul li {
+        .disease-cure ul li {
             margin-bottom: 5px;
         }
 
-        .disease-info .disease-cure ul li::marker {
+        .disease-cure ul li::marker {
             color: #007BFF;
         }
 
+        @media (max-width: 768px) {
+            .main {
+                padding: 1rem;
+            }
+
+            .image-container img {
+                max-height: 200px;
+            }
+        }
+
         .reverse {
-    display: flex;
-    justify-content: space-between;
-    align-items: center; 
-}
+            display: flex;
+            justify-content: space-between;
+            align-items: center; 
+        }
 
-.reverse img {
-    width: 1rem;
-}
+        .reverse img {
+            width: 1rem;
+        }
 
-.menu-item img.hover-icon {
-    display: block;
-    margin-top: 5px; 
-    transition: 0.3s ease-in-out;
-}
+        .menu-item img.hover-icon {
+            display: block;
+            margin-top: 5px; 
+            transition: 0.3s ease-in-out;
+        }
 
-.menu-item:hover img.hover-icon {
-    content: url('{{ url_for("serve_static", path="assets/images/reverse-black.png") }}');
-}
-    </style>
+        .menu-item:hover img.hover-icon {
+            content: url('{{ url_for("serve_static", path="assets/images/reverse-black.png") }}');
+        }
+</style>
+
 </head>
 <body>
     <div class="circle-menu" onclick="toggleMenu()">
@@ -173,18 +156,24 @@
                 <h1>{{ item.name }}</h1>
             </div>
             <hr>
-            <div class="disease-info">
-                <div>
-                    <p class="disease-title"><strong>Description:</strong></p>
-                    <p class="disease-description">{{ item.longDescription }}</p>
-                    <p class="disease-title"><strong>Cure:</strong></p>
-                    <p class="disease-cure">{{ item.longCure }}</p>
-                </div>
-                <div class="image-container">
-                    <img src="{{ url_for('serve_static', path=item.image) }}" class="detail-img" alt="{{ item.name }}">
-                </div>
+            
+            <div class="image-container">
+                <img src="{{ url_for('serve_static', path=item.image) }}" class="detail-img" alt="{{ item.name }}">
+            </div>
+        
+            <div>
+                <p class="disease-title"><strong>Description:</strong></p>
+                <p class="disease-description">{{ item.longDescription|safe }}</p>
+            </div>
+            
+            <div>
+                <p class="disease-title"><strong>Cure:</strong></p>
+                <p class="disease-cure">{{ item.longCure|safe }}</p>
             </div>
         </div>
+        
+        
+        
         <div class="download-circle" onclick="downloadApp()">
             <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download">
         </div>
