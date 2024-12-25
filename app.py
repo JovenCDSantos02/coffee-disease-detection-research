@@ -62,9 +62,13 @@ def save_accounts(accounts):
 
 def load_result_records():
     """Load result records from Google Drive."""
-    download_file(RESULT_RECORD_JSON_FILE_ID, 'data/resultRecord.json')
-    with open('data/resultRecord.json') as f:
-        return json.load(f)['records']
+    try:
+        download_file(RESULT_RECORD_JSON_FILE_ID, 'data/resultRecord.json')
+        with open('data/resultRecord.json') as f:
+            return json.load(f)
+    except Exception as e:
+        print("Error loading result records from file:", str(e)) 
+        raise
 
 def save_result_records(new_record):
     """Save result records to Google Drive."""
@@ -322,7 +326,7 @@ def predict():
 def get_records():
     try:
         data = load_result_records()
-
+        
         if isinstance(data, dict) and 'records' in data:
             records = data['records']
             
@@ -332,7 +336,6 @@ def get_records():
                 raise ValueError("'records' is not a list")
         else:
             raise ValueError("'records' key not found in the data")
-
     except Exception as e:
         print("Error loading records:", str(e))
         return jsonify({"error": str(e)}), 500

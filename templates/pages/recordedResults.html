@@ -190,30 +190,35 @@
         }
     
         async function fetchRecords() {
-            const loader = document.createElement('p');
-            loader.textContent = "Loading records...";
-            document.body.appendChild(loader);
-    
-            try {
-                const response = await fetch('/get-records');
-                if (!response.ok) throw new Error("Server error");
-    
-                allRecords = await response.json();
-    
-                if (allRecords && allRecords.records && Array.isArray(allRecords.records)) {
-                    populateMonthYearDropdown();
-                    populateFarmDropdown();
-                    updateGraph();
-                } else {
-                    alert("No data available.");
-                }
-            } catch (error) {
-                console.error("Error:", error);
-                alert("Failed to fetch records.");
-            } finally {
-                loader.remove();
-            }
+    const loader = document.createElement('p');
+    loader.textContent = "Loading records...";
+    document.body.appendChild(loader);
+
+    try {
+        const response = await fetch('/get-records');
+        if (!response.ok) throw new Error("Server error");
+
+        const allRecords = await response.json();
+        
+        if (allRecords.error) {
+            throw new Error(allRecords.error);
         }
+
+        if (allRecords && Array.isArray(allRecords)) {
+            populateMonthYearDropdown();
+            populateFarmDropdown();
+            updateGraph();
+        } else {
+            alert("No data available.");
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Failed to fetch records: " + error.message);
+    } finally {
+        loader.remove();
+    }
+}
+
     
         function populateMonthYearDropdown() {
             const monthYearSelect = document.getElementById('month-year');
