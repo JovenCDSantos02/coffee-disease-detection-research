@@ -140,12 +140,14 @@
         <div id="popup" style="display: none; position: fixed; top: 0; right: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.25); border-radius: 10px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); overflow: auto; padding: 1rem;">
             <div id="popup-body" style="margin-top:5%; margin-left: 20%; width: 60%; height: 70%; background: white; border-radius: 10px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); overflow: auto; padding: 1rem;">
             <button onclick="closePopup()" style="position: absolute; top: 12.5%; right: 22.5%; background: red; color: white; border: none; padding: 0.75rem 1rem; border-radius: 5px; cursor: pointer;">Close</button>
-            <br><h2>Diagnosis Results</h2>
-                <div id="history-loading-spinner" style="display: none; width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #2F4F4F; border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto;"></div>                   
+            <br>
+            <h2>Diagnosis Results</h2>        
+            <br>        
                 <label for="popup-month-year">Month-Year:</label>
                 <select id="popup-month-year" onchange="updatePopupTable()"></select>
                 <label for="popup-farm">Farm:</label>
                 <select id="popup-farm" onchange="updatePopupTable()"></select>
+                <div id="history-loading-spinner" style="display: none; width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #2F4F4F; border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto;"></div>   
                 <table border="1" style="width: 100%; text-align: left; margin-top: 1rem;">
                     <thead>
                         <tr>
@@ -180,7 +182,7 @@
                     labels: ['Leaf Scale', 'Mealy Bug', 'Twig Borer', 'Anthracnose', 'Brown Eye', 'Leaf Rust', 'Healthy'],
                     datasets: [{
                         label: 'Tally of Results',
-                        data: [0, 0, 0, 0, 0, 0, 0], // Initial counts
+                        data: [0, 0, 0, 0, 0, 0, 0], 
                         backgroundColor: '#2F4F4F', 
                         borderColor: 'white',   
                         borderWidth: 1
@@ -480,10 +482,12 @@ function populatePopupFilters() {
 function updatePopupTable() {
     const popupTableBody = document.getElementById('popup-table-body');
     const spinner = document.getElementById('history-loading-spinner');
+    const table = document.querySelector('table'); 
 
     spinner.style.display = 'block';
+    table.style.display = 'none';  
+
     popupTableBody.innerHTML = '';
-    popupTableBody.style.display = 'none'; 
 
     setTimeout(() => {
         const selectedMonthYear = document.getElementById('popup-month-year').value;
@@ -504,7 +508,7 @@ function updatePopupTable() {
         });
 
         spinner.style.display = 'none';
-        popupTableBody.style.display = 'table-row-group';
+        table.style.display = 'table';  
     }, 1000); 
 }
     

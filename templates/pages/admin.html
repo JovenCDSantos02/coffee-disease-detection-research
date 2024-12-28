@@ -195,6 +195,11 @@
         cursor: pointer;
     }
 
+    .dash-images {
+        width: 100px;
+        height: 100px;
+    }
+
 </style>
 </head>
 <body>
@@ -222,18 +227,22 @@
             <div class="dashboard-cards">
                 <div class="card">
                     <h2>Total Healthy:</h2>
+                    <img src="{{ url_for('serve_static', path='assets/images/healthy-plant.png') }}" alt="icon" class="dash-images">
                     <p>Loading...</p>
                 </div>
                 <div class="card">
                     <h2>Total Unhealthy:</h2>
+                    <img src="{{ url_for('serve_static', path='assets/images/unhealthy-plant.png') }}" alt="icon" class="dash-images">
                     <p>Loading...</p>
                 </div>
                 <div class="card">
                     <h2>Number of Farmers:</h2>
+                    <img src="{{ url_for('serve_static', path='assets/images/farmer.png') }}" alt="icon" class="dash-images">
                     <p>Loading...</p>
                 </div>
                 <div class="card">
                     <h2>Number of Farms:</h2>
+                    <img src="{{ url_for('serve_static', path='assets/images/farm.png') }}" alt="icon" class="dash-images">
                     <p>Loading...</p>
                 </div>
             </div>

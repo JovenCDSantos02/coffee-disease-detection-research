@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/nav.css') }}">
     <link rel="stylesheet" href="{{ url_for('serve_static', path='assets/css/download.css') }}">
     <style>
+        
         * {
           margin: 0;
           padding: 0;
@@ -20,8 +21,12 @@
           min-height: 100vh;
           background-image: linear-gradient(135deg, #8B4513, #8FBC8F);
       }
+      
 
       button {
+        transition: background-color 0.3s;
+      }
+      div {
         transition: background-color 0.3s;
       }
       button[type="submit"] {
@@ -110,26 +115,24 @@ button[type="submit"]:hover {
     background-color: #8FBC8F;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
 .disease-info {
     display: flex;
-    gap: 20px;
-    align-items: flex-start;
-    justify-content: center;
-    text-align: center;
+    flex-direction: column;  
+    gap: 20px;              
+    align-items: center;   
+    text-align: center;    
 }
 
 .disease-info img {
     border: 2px solid #ddd;
-    max-width: 150px;
+    max-width: 150px;       
     border-radius: 10px;
     height: auto;
-    margin: 0 auto;
+    margin: 0 auto;       
     display: block;
 }
 
 .disease-info div {
-    flex: 1;
     font-family: 'Arial', sans-serif;
 }
 
@@ -147,10 +150,10 @@ button[type="submit"]:hover {
     margin-bottom: 15px;
 }
 
-.disease-info p#disease-description, 
+.disease-info p#disease-description,
 .disease-info p#disease-cure {
-    margin-left: 5%;
-    justify-content: center;
+    margin-left: 0; 
+    justify-content: center;  
 }
 
 .disease-info p#disease-cure ul {
@@ -175,29 +178,27 @@ a:hover, form > button:hover, #retry-button:hover, #more-info-button:hover {
     color: black;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
+
 @media (max-width: 480px) {
     .disease-info {
-        flex-direction: column; 
-        gap: 15px;
+        gap: 15px;  
     }
 
     .disease-info img {
-        max-width: 80px; 
-        margin: 0 auto;
-        height: auto;
+        max-width: 80px;
     }
 
     .disease-info p {
-        font-size: 0.9rem;
+        font-size: 0.9rem; =
     }
 
     .disease-info p#disease-name {
-        font-size: 1.1rem; 
+        font-size: 1.1rem; =
     }
 
     .disease-info p#disease-description,
     .disease-info p#disease-cure {
-        margin-left: 0; 
+        margin-left: 0;  =
     }
 }
 
@@ -281,11 +282,11 @@ form > button, #retry-button, #more-info-button {
 }
 
 #history-section {
-    display: none;
     margin-top: 20px;
     position: absolute;
     bottom: 100px;
-    left: 20px;
+    left: -500px; /* 20px */
+    opacity: 0;
     width: 50%;
     max-height: 300px;
     overflow-y:auto ;
@@ -331,25 +332,65 @@ form > button, #retry-button, #more-info-button {
 }
 
 .toggle-history-btn {
-    padding: 0.5rem 1rem;
     background-color: #2F4F4F;
     color: #FFF;
-    font-weight: 700;
+    font-weight: 500;
     text-transform: uppercase;
     border-radius: 0.25rem;
     cursor: pointer;
     border: none;
     margin: 10px 0;
     padding: 1rem;
-    position: absolute;
+    position: fixed;
     bottom: 20px;
     left: 20px;
+
+    height: 3rem;
+
+    }
+
+    .close-history-btn {
+    background-color: red;
+    color: #FFF;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: 0.25rem;
+    z-index: 2;
+    cursor: pointer;
+    border: none;
+    margin: 10px 0;
+    border-radius: 5rem;
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+
+        /* toggle */
+    /* 1rem */
+    padding: 0;
+    font-size: 0;
+    /* 3rem */
+    height: 0;
+    width: 0;
 
     }
 
 .toggle-history-btn:hover {
     background-color: #8FBC8F;
     }
+
+    .close-history-btn:hover {
+    background-color: maroon;
+    }
+
+    #history-section {
+    transition: left 0.5s ease, opacity 0.5s ease;
+}
+
+#history-btn, #close-history-btn {
+    transition: all 0.5s ease;
+}
+
+
     </style>
     
 </head>
@@ -394,14 +435,12 @@ form > button, #retry-button, #more-info-button {
             </div>
 
             <div class="result" id="result" style="display: none;">
-                <h2 style="margin-left: 20%;">Diagnosis Result:</h2>
+                <h2">Diagnosis Result:</h2>
                 <div class="disease-info">
-                    <img id="disease-image" src="#" alt="Disease Image" style="max-width: 250px; border-radius: 10px; border: 1px solid #ccc;">
-                    <div>
-                        <p id="disease-name"></p>
+                    <p id="disease-name"></p>
+                    <img id="disease-image" src="#" alt="Disease Image" style="max-width: 200px; border-radius: 10px; border: 1px solid #ccc;">
                         <p id="disease-description"></p>
                         <p id="disease-cure"></p>
-                    </div>
                 </div>
                 <div id="result-buttons">
                     <button id="retry-button" onclick="retry()">Retry</button>
@@ -409,8 +448,8 @@ form > button, #retry-button, #more-info-button {
                 </div>
             </div>
 
-            <button class="toggle-history-btn" id="history-btn" onclick="toggleHistory()">Show Diagnosis History</button>
-
+            <div class="toggle-history-btn" id="history-btn" onclick="toggleHistory()">Show Diagnosis History</div>
+            <div class="close-history-btn" id="close-history-btn" onclick="toggleHistory()">X</div>
             <div class="history-section" id="history-section">
                 <h2>Diagnosis History</h2>
                 <table id="history-table" class="history-table">
@@ -427,6 +466,7 @@ form > button, #retry-button, #more-info-button {
             
 
             <div class="download-circle" onclick="downloadApp()">
+                <div class="download-text">Download App!</div>
                 <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download">
             </div>
     </div>
@@ -446,12 +486,33 @@ form > button, #retry-button, #more-info-button {
     
         function toggleHistory() {
             const historyBtn = document.getElementById('history-btn');
-            if (historySection.style.display === 'none') {
-                historySection.style.display = 'block';
-                historyBtn.innerText = "Hide Diagnosis History";
+            const closeHistoryBtn = document.getElementById('close-history-btn');
+
+            if (historySection.style.left === '-500px') {
+                historySection.style.left = '20px';
+                historySection.style.opacity = '1';
+
+                historyBtn.style.height = '0';
+                historyBtn.style.padding = '0';
+                historyBtn.innerText = '';
+
+                closeHistoryBtn.style.padding = '1rem';
+                closeHistoryBtn.style.width = '3rem';
+                closeHistoryBtn.style.height = '3rem';
+                closeHistoryBtn.style.fontSize = '1rem';
+                
             } else {
-                historySection.style.display = 'none';
+                historySection.style.left = '-500px';
+                historySection.style.opacity = '0';
+
                 historyBtn.innerText = "Show Diagnosis History";
+                historyBtn.style.height = '3rem';
+                historyBtn.style.padding = '1rem';
+
+                closeHistoryBtn.style.padding = '0';
+                closeHistoryBtn.style.width = '0';
+                closeHistoryBtn.style.height = '0';
+                closeHistoryBtn.style.fontSize = '0';
             }
         }
     
@@ -533,7 +594,6 @@ form > button, #retry-button, #more-info-button {
             }
         });
     
-        // Preview the selected image
         function previewImage(file) {
             console.log("Previewing image:", file);
             const reader = new FileReader();
@@ -588,7 +648,11 @@ form > button, #retry-button, #more-info-button {
                     $('#upload-form').hide();
                     $('#result').show();
 
+
                     const formatText = (text) => text.replace(/\n/g, '<br>');
+                    if (response.disease_name === 'Healthy') {
+                        $('#disease-name').text(`You're coffee plant is ${response.disease_name}`);
+                    }
                     $('#disease-name').text(`Disease: ${response.disease_name}`);
                     $('#disease-description').html(`Description: ${formatText(response.disease_description)}`);
                     $('#disease-cure').html(`Cure: ${formatText(response.disease_cure)}`);
@@ -611,6 +675,7 @@ form > button, #retry-button, #more-info-button {
             }
         });
     });
+    fetchHistory();
 }
 
     
@@ -632,7 +697,6 @@ form > button, #retry-button, #more-info-button {
             let width = img.width;
             let height = img.height;
 
-            // Calculate new dimensions
             if (width > height) {
                 if (width > maxWidth) {
                     height *= maxWidth / width;
@@ -647,7 +711,6 @@ form > button, #retry-button, #more-info-button {
             
             console.log("Resized dimensions:", { width, height });
 
-            // Set canvas dimensions and draw the image
             canvas.width = width;
             canvas.height = height;
             const ctx = canvas.getContext('2d');
@@ -655,7 +718,6 @@ form > button, #retry-button, #more-info-button {
 
             console.log("Image drawn on canvas.");
 
-            // Convert canvas to blob
             canvas.toBlob((blob) => {
                 if (blob) {
                     console.log("Image successfully resized and converted to blob.");
@@ -680,8 +742,6 @@ form > button, #retry-button, #more-info-button {
     reader.readAsDataURL(file);
 }
 
-    
-        // Retry uploading
         function retry() {
             console.log("Retrying upload...");
             $('#result').hide();
