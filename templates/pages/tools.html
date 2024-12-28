@@ -422,6 +422,7 @@ form > button, #retry-button, #more-info-button {
                     </thead>
                     <tbody id="history-content" class="history-content"></tbody>
                 </table>
+                <div id="history-loading-spinner" style="display: none; width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #2F4F4F; border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto;"></div>
             </div>            
             
 
@@ -438,7 +439,6 @@ form > button, #retry-button, #more-info-button {
         const preview = document.getElementById('preview');
         const historySection = document.getElementById('history-section');
     
-        // Fetch history on document ready
         $(document).ready(() => {
             console.log("Document ready. Fetching history...");
             fetchHistory();
@@ -455,38 +455,50 @@ form > button, #retry-button, #more-info-button {
             }
         }
     
-        // Fetch diagnosis history
         function fetchHistory() {
-            console.log("Fetching diagnosis history...");
-            $.ajax({
-                url: '/history',
-                type: 'GET',
-                success: function (response) {
-                    console.log("History fetched successfully:", response);
-                    const historyContent = $('#history-content');
+    console.log("Fetching diagnosis history...");
+    const spinner = document.getElementById('history-loading-spinner');
+    const historyContent = $('#history-content');
+    const historyTable = $('#history-table');
     
-                    if (response.error) {
-                        historyContent.html(`<p>${response.error}</p>`);
-                        return;
-                    }
-    
-                    if (response.length === 0) {
-                        historyContent.html('<tr><td colspan="2">No history records found.</td></tr>');
-                    } else {
-                        const historyRows = response.map(record => `
-                            <tr>
-                                <td>${record.date}</td>
-                                <td>${record.results}</td>
-                            </tr>
-                        `).join('');
-                        historyContent.html(historyRows);
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error fetching history:', error);
-                }
-            });
+    spinner.style.display = 'block';
+    historyTable.hide();
+
+    $.ajax({
+        url: '/history',
+        type: 'GET',
+        success: function (response) {
+            console.log("History fetched successfully:", response);
+
+            spinner.style.display = 'none';
+            historyTable.show();
+
+            if (response.error) {
+                historyContent.html(`<p>${response.error}</p>`);
+                return;
+            }
+
+            if (response.length === 0) {
+                historyContent.html('<tr><td colspan="2">No history records found.</td></tr>');
+            } else {
+                const historyRows = response.map(record => `
+                    <tr>
+                        <td>${record.date}</td>
+                        <td>${record.results}</td>
+                    </tr>
+                `).join('');
+                historyContent.html(historyRows);
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error fetching history:', error);
+            
+            spinner.style.display = 'none';
+            historyTable.show();
         }
+    });
+}
+
     
         dropZone.addEventListener('click', () => fileInput.click());
     

@@ -5,3 +5,6 @@
 # Ignore specific Python scripts
 test.py
 convert.py
+
+data/account.json
+data/resultRecord.json

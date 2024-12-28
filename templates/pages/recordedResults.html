@@ -76,6 +76,26 @@
     
 }
 
+.loading-spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #2F4F4F; /* Dark color for contrast */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
     </style>
 </head>
 
@@ -121,6 +141,7 @@
             <div id="popup-body" style="margin-top:5%; margin-left: 20%; width: 60%; height: 70%; background: white; border-radius: 10px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); overflow: auto; padding: 1rem;">
             <button onclick="closePopup()" style="position: absolute; top: 12.5%; right: 22.5%; background: red; color: white; border: none; padding: 0.75rem 1rem; border-radius: 5px; cursor: pointer;">Close</button>
             <br><h2>Diagnosis Results</h2>
+                <div id="history-loading-spinner" style="display: none; width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #2F4F4F; border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto;"></div>                   
                 <label for="popup-month-year">Month-Year:</label>
                 <select id="popup-month-year" onchange="updatePopupTable()"></select>
                 <label for="popup-farm">Farm:</label>
@@ -418,6 +439,74 @@
             const dateNow = new Date().toISOString().split('T')[0];
             doc.save(`coffee-plant-health-report-${dateNow}.pdf`);
         }
+
+        function openPopup() {
+    document.getElementById('popup').style.display = 'block';
+    populatePopupFilters();
+    updatePopupTable();
+}
+
+function closePopup() {
+    document.getElementById('popup').style.display = 'none';
+}
+
+function populatePopupFilters() {
+    const popupMonthYearSelect = document.getElementById('popup-month-year');
+    const popupFarmSelect = document.getElementById('popup-farm');
+
+    popupMonthYearSelect.innerHTML = '';
+    popupFarmSelect.innerHTML = '';
+
+    const uniqueMonthYears = [...new Set(allRecords.map(record => {
+        const [year, month] = record.date.split('-').slice(0, 2);
+        return `${getMonthName(month)} ${year}`;
+    }))];
+    uniqueMonthYears.forEach(monthYear => {
+        const option = document.createElement('option');
+        option.value = monthYear;
+        option.textContent = monthYear;
+        popupMonthYearSelect.appendChild(option);
+    });
+
+    const uniqueFarms = [...new Set(allRecords.map(record => record.farm))];
+    uniqueFarms.forEach(farm => {
+        const option = document.createElement('option');
+        option.value = farm;
+        option.textContent = farm;
+        popupFarmSelect.appendChild(option);
+    });
+}
+
+function updatePopupTable() {
+    const popupTableBody = document.getElementById('popup-table-body');
+    const spinner = document.getElementById('history-loading-spinner');
+
+    spinner.style.display = 'block';
+    popupTableBody.innerHTML = '';
+    popupTableBody.style.display = 'none'; 
+
+    setTimeout(() => {
+        const selectedMonthYear = document.getElementById('popup-month-year').value;
+        const selectedFarm = document.getElementById('popup-farm').value;
+
+        const [monthName, year] = selectedMonthYear.split(' ');
+        const month = ("0" + (new Date(monthName + " 1, 2000").getMonth() + 1)).slice(-2);
+        const filterDate = `${year}-${month}`;
+
+        const filteredRecords = allRecords.filter(record =>
+            record.date.startsWith(filterDate) && (selectedFarm === 'All' || record.farm === selectedFarm)
+        );
+
+        filteredRecords.forEach(record => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${record.date}</td><td>${record['account-id']}</td><td>${record.results}</td><td>${record.farm}</td>`;
+            popupTableBody.appendChild(row);
+        });
+
+        spinner.style.display = 'none';
+        popupTableBody.style.display = 'table-row-group';
+    }, 1000); 
+}
     
         fetchRecords(); 
     </script>    
