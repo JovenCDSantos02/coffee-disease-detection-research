@@ -162,24 +162,30 @@
     }
 
     .modal {
-        display: none;
-        justify-content: center;
-        align-items: center;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-    }
+    display: none; 
+    justify-content: center;
+    align-items: center; 
+    position: fixed; 
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5); 
+    z-index: 999; 
+}
 
-    .modal-dialog {
-        background: white;
-        border-radius: 8px;
-        padding: 20px;
-        width: 50%;
-        max-width: 600px;
-    }
+.modal-dialog {
+    position: relative; 
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    width: 50%;
+    max-width: 600px;
+    margin: auto;
+    z-index: 1000; 
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 
     .btn-close {
         position: absolute;
@@ -275,9 +281,9 @@
                 <div class="modal-dialog">
                     <div class="modal-header">
                         <h5 class="modal-title">Add New User</h5>
-                        <span class="btn-close" onclick="closeModal('addUserModal')">X</span>
                     </div>
                     <div class="modal-body">
+                        <span class="btn-close" onclick="closeModal('addUserModal')">X</span>
                         <form action="/add_user" method="POST">
                             <div class="mb-3">
                                 <label for="account-id" class="form-label">Account ID:</label>
@@ -319,11 +325,12 @@
 
             <div class="modal" id="editUserModal">
                 <div class="modal-dialog">
+                    
                     <div class="modal-header">
                         <h5 class="modal-title">Edit User</h5>
-                        <span class="btn-close" onclick="closeModal('editUserModal')">X</span>
                     </div>
                     <div class="modal-body">
+                        <span class="btn-close" onclick="closeModal('editUserModal')">X</span>
                         <form id="editUserForm" method="POST">
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password:</label>
