@@ -22,6 +22,7 @@
           min-height: 100vh;
           background-image: linear-gradient(135deg, #8B4513, #8FBC8F);
       }
+      
       .body {
           width: 90%;
           margin: 1rem auto 0;
@@ -78,12 +79,29 @@
 
 .loading-spinner {
     border: 4px solid rgba(0, 0, 0, 0.1);
-    border-left-color: #2F4F4F; /* Dark color for contrast */
+    border-left-color: #2F4F4F; 
     border-radius: 50%;
     width: 50px;
     height: 50px;
     animation: spin 1s linear infinite;
     margin: 0 auto;
+}
+
+
+
+.graph button {
+    margin: 1rem; 
+    padding: 0.5rem 3rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem; 
+}
+
+.graph select, 
+.graph label {
+    margin-bottom: 1rem;
+    text-align: left;
 }
 
 @keyframes spin {
@@ -94,6 +112,21 @@
         transform: rotate(360deg);
     }
 }
+
+
+        @media (max-width: 576px) {
+        .body {
+            margin-bottom: 50px;
+        }
+
+        .graph {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+}
+
+        
+    }
 
 
     </style>
@@ -138,8 +171,8 @@
         
     
         <div id="popup" style="display: none; position: fixed; top: 0; right: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.25); border-radius: 10px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); overflow: auto; padding: 1rem;">
-            <div id="popup-body" style="margin-top:5%; margin-left: 20%; width: 60%; height: 70%; background: white; border-radius: 10px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); overflow: auto; padding: 1rem;">
-            <button onclick="closePopup()" style="position: absolute; top: 12.5%; right: 22.5%; background: red; color: white; border: none; padding: 0.75rem 1rem; border-radius: 5px; cursor: pointer;">Close</button>
+            <div id="popup-body" style="position: relative; margin-top:5%; margin-left: 20%; width: 60%; height: 70%; background: white; border-radius: 10px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); overflow: auto; padding: 1rem;">
+            <button onclick="closePopup()" style="font-size: 1.5rem; position: absolute; top: 0; right: 0; color: red; border: none; padding: 0.75rem 1rem; border-radius: 5px; cursor: pointer;">X</button>
             <br>
             <h2>Diagnosis Results</h2>        
             <br>        
@@ -163,6 +196,7 @@
         </div>
     </div>
     <div class="download-circle" onclick="downloadApp()">
+        <div class="download-text">Download App!</div>
         <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download">
     </div>
     

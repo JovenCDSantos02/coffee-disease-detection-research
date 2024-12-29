@@ -47,6 +47,7 @@
         gap: 10px;
         flex-wrap: wrap;
         margin-top: 20px;
+        width: 100%;
 
     }
 
@@ -59,8 +60,7 @@
         flex: 1;
         box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
         margin: 10px;
-        min-width: 220px;
-        max-width: 300px;
+        width: 80%;
         transition: all 0.3s ease;
     }
 
@@ -79,86 +79,6 @@
     .card:hover {
         transform: translateY(-5px);
         box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.15);
-    }
-
-    @media (max-width: 1024px) {
-        .body {
-            width: 90%;
-        }
-
-        .dashboard-cards {
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .card {
-            width: 80%;
-            margin-bottom: 20px;
-        }
-
-
-        .btn {
-            width: 100%;
-            text-align: center;
-        }
-
-        .menu-item a {
-            font-size: 16px;
-            padding: 8px;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .dashboard-cards {
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .card {
-            width: 100%;
-            margin-bottom: 10px;
-        }
-
-        .circle-menu img {
-            width: 30px;
-            height: 30px;
-        }
-
-        .btn {
-            font-size: 14px;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .body {
-            width: 90%;
-        }
-        .circle-menu img {
-            width: 25px;
-            height: 25px;
-        }
-
-        .btn {
-            font-size: 14px;
-        }
-
-        .modal-dialog {
-            width: 90%;
-            max-width: 500px;
-        }
-
-        .menu-item a {
-            font-size: 14px;
-            padding: 10px;
-        }
-
-        .dashboard h1 {
-            font-size: 20px;
-        }
-
-        .dashboard-cards {
-            padding: 0 10px;
-        }
     }
 
     .modal {
@@ -196,10 +116,103 @@
     }
 
     .dash-images {
-        width: 100px;
-        height: 100px;
+        width: 60px;
+        height: 60px;
+        background-color: white;
     }
 
+    
+    @media (max-width: 1024px) {
+        .body {
+            width: 90%;
+        }
+
+        .dashboard-cards {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .card {
+            width: 80%;
+            margin-bottom: 20px;
+        }
+
+
+        .btn {
+            width: 100%;
+            text-align: center;
+        }
+
+        .menu-item a {
+            font-size: 16px;
+            padding: 8px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-cards {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .card {
+            width: 80%;
+            margin-bottom: 10px;
+        }
+
+        .circle-menu img {
+            width: 30px;
+            height: 30px;
+        }
+
+        .btn {
+            font-size: 14px;
+        }
+    }
+
+    
+    @media (max-width: 576px) {
+        .body {
+            margin-bottom: 50px;
+        }
+        
+        .dash-images {
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+
+    @media (max-width: 480px) {
+        .body {
+            width: 90%;
+        }
+        .circle-menu img {
+            width: 25px;
+            height: 25px;
+        }
+
+        .btn {
+            font-size: 14px;
+        }
+
+        .modal-dialog {
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .menu-item a {
+            font-size: 14px;
+            padding: 10px;
+        }
+
+        .dashboard h1 {
+            font-size: 20px;
+        }
+
+    }
+
+        
 </style>
 </head>
 <body>
@@ -247,8 +260,7 @@
                 </div>
             </div>
         </div>
-        
-        
+
         <div class="body">
             <h1>User Management</h1>
                <div class="table-container">
@@ -377,6 +389,7 @@
             </div>
     </div>
     <div class="download-circle" onclick="downloadApp()">
+        <div class="download-text">Download App!</div>
         <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download">
     </div>
     <script src="{{ url_for('serve_static', path='assets/js/circle-menu.js') }}"></script> 

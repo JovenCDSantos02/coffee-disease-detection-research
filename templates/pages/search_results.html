@@ -130,6 +130,61 @@
 .menu-item:hover img.hover-icon {
     content: url('{{ url_for("serve_static", path="assets/images/reverse-black.png") }}');
 }
+
+
+@media (max-width: 1024px) {
+    .body {
+    width: 100%; 
+    margin: 0 auto; 
+}
+}
+
+@media (max-width: 576px) {
+        .body {
+            margin-bottom: 50px;
+        }
+
+        .item-button {
+            width: 100%;
+        }
+
+        .body {
+    width: 100%; 
+    margin: 0 auto; 
+}
+
+.item-container {
+    display: flex;
+    flex-wrap: wrap; 
+    justify-content: center;
+    gap: 1rem; 
+}
+
+.item-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: inherit; 
+    background: #f9f9f9; 
+    border: 1px solid #ddd; 
+    padding: 1rem;
+    border-radius: 8px; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease; 
+}
+
+.item-button:hover {
+    transform: scale(1.05); 
+}
+
+.item-button img {
+    max-width: 100%;
+    height: auto; 
+    margin-bottom: 0.5rem;
+}
+}
+
     </style>
 </head>
 <body>
@@ -199,6 +254,7 @@
                 {% endif %}
         </div>
         <div class="download-circle" onclick="downloadApp()">
+            <div class="download-text">Download App!</div>
             <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download">
         </div>
     </div>

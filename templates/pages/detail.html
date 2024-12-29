@@ -122,6 +122,11 @@
         .menu-item:hover img.hover-icon {
             content: url('{{ url_for("serve_static", path="assets/images/reverse-black.png") }}');
         }
+
+        @media (max-width: 576px) {
+        .body {
+            margin-bottom: 50px;
+        }}
 </style>
 
 </head>
@@ -174,6 +179,7 @@
         
         
         <div class="download-circle" onclick="downloadApp()">
+            <div class="download-text">Download App!</div>
             <img src="{{ url_for('serve_static', path='assets/images/download-icon.png') }}" alt="Download">
         </div>
     </div>
