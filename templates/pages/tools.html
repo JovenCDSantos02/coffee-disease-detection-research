@@ -431,12 +431,14 @@ form > button, #retry-button, #more-info-button {
 
             <div class="form" id="upload-form">
                 <label class="info">Upload an image and diagnose</label><br>
-                <div id="drop-zone">Drop your image here or click to upload</div>
-                <input type="file" id="plant-image" name="file" accept="image/*" capture="camera" style="display: none;">
+                <div id="drop-zone" onclick="document.getElementById('plant-image').click();">
+                    Drop your image here or click to upload
+                </div>
+                <input type="file" id="plant-image" name="file" accept="image/*" style="display: none;">
                 <img id="preview" src="" alt="Image Preview" style="display: none;"><br>
                 <div id="loading-spinner" style="display: none;"></div>
                 <button type="submit" id="submit-button" onclick="uploadImage()">Diagnose</button>
-            </div>
+            </div>            
 
             <div class="result" id="result" style="display: none;">
                 <h2">Diagnosis Result:</h2>
