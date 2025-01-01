@@ -234,8 +234,12 @@ def detail(name):
     item = next((item for item in diseases_info if item['name'] == name), None)
     
     if item:
-        item['longDescription'] = '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.join(item['longDescription'])
-        item['longCure'] = '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.join(item['longCure'])
+        if isinstance(item['longDescription'], list):
+            item['longDescription'] = '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + \
+                                       '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.join(item['longDescription'])
+        if isinstance(item['longCure'], list):
+            item['longCure'] = '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + \
+                               '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.join(item['longCure'])
 
     return render_template('pages/detail.html', item=item) if item else ("Item not found", 404)
 
