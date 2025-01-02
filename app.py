@@ -177,7 +177,9 @@ def tools():
         return redirect(url_for('login'))
 
     position = session.get('position', '')
-    return render_template('pages/tools.html', position=position)
+    disease_info = session.get('disease_info', None)
+
+    return render_template('pages/tools.html', position=position, disease_info=disease_info)
 
 @app.route('/resource.html')
 def resource():
@@ -296,6 +298,8 @@ def predict():
                 'disease_image': disease_info['image']
             }
 
+            session['disease_info'] = response
+
             record = {
                 "date": str(datetime.date.today()),
                 "account-id": session['account_id'],
@@ -311,6 +315,7 @@ def predict():
         else:
             app.logger.warning("Disease not found in database.")
             response = {'error': 'Disease not found in the database.'}
+            session['disease_info'] = response
 
         return jsonify(response)
     except Exception as e:
