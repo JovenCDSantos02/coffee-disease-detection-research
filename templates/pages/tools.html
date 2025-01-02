@@ -683,41 +683,6 @@ form > button, #retry-button, #more-info-button {
     });
     fetchHistory();
 }
-// When the page loads, check if disease_info is in the session (if already set)
-window.onload = function() {
-    const disease_info = JSON.parse(sessionStorage.getItem('disease_info'));
-
-    if (disease_info) {
-        // Hide the upload form and show the result section
-        $('#upload-form').hide();
-        $('#result').show();
-
-        // Function to format text by replacing new lines with <br> tags
-        const formatText = (text) => text.replace(/\n/g, '<br>');
-
-        // Set disease name
-        if (disease_info.disease_name === 'Healthy') {
-            $('#disease-name').text(`You're coffee plant is ${disease_info.disease_name}`);
-        } else {
-            $('#disease-name').text(`Disease: ${disease_info.disease_name}`);
-        }
-
-        // Set disease description and cure
-        $('#disease-description').html(`Description: ${formatText(disease_info.disease_description)}`);
-        $('#disease-cure').html(`Cure: ${formatText(disease_info.disease_cure)}`);
-
-        // Set disease image
-        $('#disease-image').attr('src', disease_info.disease_image);
-
-        // Show "More Info" button if disease is not healthy
-        if (disease_info.disease_name !== 'Healthy') {
-            $('#more-info-button').show();
-            $('#more-info-button').attr('onclick', `window.location.href='/detail/${encodeURIComponent(disease_info.disease_name)}'`);
-        } else {
-            $('#more-info-button').hide();
-        }
-    }
-};
 
     
         function resizeImage(file, maxWidth, maxHeight, callback) {
@@ -783,15 +748,13 @@ window.onload = function() {
     reader.readAsDataURL(file);
 }
 
-function retry() {
-    console.log("Retrying upload...");
-    $('#result').hide();
-    $('#upload-form').show();
-    $('#preview').attr('src', '').hide();
-    $('#drop-zone').show();
-    sessionStorage.removeItem('disease_info');
-}
-
+        function retry() {
+            console.log("Retrying upload...");
+            $('#result').hide();
+            $('#upload-form').show();
+            $('#preview').attr('src', '').hide();
+            $('#drop-zone').show();
+        }
     </script>
     
     
