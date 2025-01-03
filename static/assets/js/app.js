@@ -29,7 +29,23 @@ window.addEventListener('beforeinstallprompt', (e) => {
     }
 });
 
+function isAppInstalled() {
+    const isStandalone = window.navigator.standalone;
+    const displayMode = window.matchMedia('(display-mode: standalone)').matches;
+
+    return isStandalone || displayMode;
+}
+
 function downloadApp() {
+    if (isAppInstalled()) {
+        alert('The app is already installed on your device.');
+        const downloadCircle = document.querySelector('.download-circle');
+        if (downloadCircle) {
+            downloadCircle.style.display = 'none'; 
+        }
+        return;
+    }
+
     if (deferredPrompt) {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
@@ -49,3 +65,4 @@ function downloadApp() {
         alert('This app cannot be installed. Please try again later.');
     }
 }
+
