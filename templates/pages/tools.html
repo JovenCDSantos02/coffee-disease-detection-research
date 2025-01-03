@@ -431,7 +431,7 @@ form > button, #retry-button, #more-info-button {
 
             <div class="form" id="upload-form">
                 <label class="info">Upload an image and diagnose</label><br>
-                <div id="drop-zone" onclick="document.getElementById('plant-image').click();">
+                <div id="drop-zone">
                     Drop your image here or click to upload
                 </div>
                 <input type="file" id="plant-image" name="file" accept="image/*" style="display: none;">
@@ -665,8 +665,11 @@ form > button, #retry-button, #more-info-button {
 
                     if (response.disease_name !== 'Healthy') {
                         $('#more-info-button').show();
-                        $('#more-info-button').attr('onclick', `window.location.href='/detail/${encodeURIComponent(response.disease_name)}'`);
-                    } else {
+                        $('#more-info-button').off('click touchstart').on('click touchstart', function(e) {
+    e.preventDefault();
+    location.assign(`/detail/${encodeURIComponent(response.disease_name)}`);
+});
+} else {
                         $('#more-info-button').hide();
                     }
                 }
