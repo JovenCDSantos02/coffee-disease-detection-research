@@ -1,4 +1,4 @@
-# Project Title
+# Coffee Leaf Diagnosis
 
 This repository contains the code for Coffee Leaf Diagnosis. The application is deployed on [Heroku](https://www.heroku.com) and relies on Heroku-specific configurations such as environment variables and authentication settings.
 
